@@ -681,6 +681,7 @@ function route(){
   if(!state.email){ showOnly("authScreen"); return; }
   loadState();
   if(!state.profile || !state.profile.area || !state.profile.city){ openProfile(); showOnly("profileScreen"); return; }
+  if(state.email===ADMIN_EMAIL){ enterApp(); return; }   // admin has full access, no paywall
   if(!subActive()){ openPaywall(); showOnly("paywallScreen"); return; }
   enterApp();
 }
@@ -949,10 +950,11 @@ function renderSettings(){
   $("setArea").textContent=p.area||"—";
   $("setCity").textContent=p.city||"—";
   $("setExp").textContent=p.exp?`${p.exp} yr`:"—";
-  const ok=subActive();
-  $("setSubStatus").innerHTML=ok?`<span class="sub-status ok">● Active</span>`:`<span class="sub-status exp">● Expired</span>`;
-  $("setSubPlan").textContent=state.sub?(PLANS[state.sub.plan]?.label||state.sub.plan):"—";
-  $("setSubExp").textContent=state.sub?fmtDate(state.sub.expiresAt):"—";
+  const isAdmin = state.email===ADMIN_EMAIL;
+  const ok = isAdmin || subActive();
+  $("setSubStatus").innerHTML=ok?`<span class="sub-status ok">● ${isAdmin?'Admin · full access':'Active'}</span>`:`<span class="sub-status exp">● Expired</span>`;
+  $("setSubPlan").textContent=isAdmin?"Owner":(state.sub?(PLANS[state.sub.plan]?.label||state.sub.plan):"—");
+  $("setSubExp").textContent=isAdmin?"—":(state.sub?fmtDate(state.sub.expiresAt):"—");
   $("setSubRef").textContent=refCode();
 }
 $("editProfile").onclick=()=>{ openProfile(); showOnly("profileScreen"); };
