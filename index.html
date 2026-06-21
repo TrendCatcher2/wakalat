@@ -250,7 +250,8 @@ main{flex:1;width:100%;max-width:var(--maxw);margin:0 auto;padding:22px 18px 80p
 .res-item .rt{font-weight:600;font-size:14px}
 .res-item .rk{font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--green);background:var(--green-tint);padding:2px 8px;border-radius:20px;margin-left:6px}
 .res-item .rm{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
-mark{background:rgba(169,120,31,.35);color:inherit;border-radius:2px;padding:0 1px}
+mark{background:var(--brass);color:#2A1E07;border-radius:3px;padding:0 3px;font-weight:700}
+[data-theme="dark"] mark{background:var(--brass);color:#15201A}
 
 /* judgments */
 .jcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -598,6 +599,20 @@ details.help a{color:var(--brass)}
         </span>
       </div>
       <div class="hint" id="jAiHint">Your key stays in this browser only.</div>
+      <details class="help" style="margin-top:8px">
+        <summary>PDF won't let you copy? Convert it to text first</summary>
+        Some judgment PDFs are scanned or locked, so text can't be selected/copied. Turn it into copyable text, then paste it above:
+        <ol>
+          <li>Open one of these free tools and upload your PDF/image:</li>
+        </ol>
+        <a href="https://www.ilovepdf.com/ocr-pdf" target="_blank" rel="noopener">iLovePDF — OCR PDF →</a>
+        <a href="https://tools.pdf24.org/en/ocr-pdf" target="_blank" rel="noopener">PDF24 — OCR PDF →</a>
+        <a href="https://www.onlineocr.net/" target="_blank" rel="noopener">OnlineOCR (PDF/JPG) →</a>
+        <ol start="2">
+          <li>Download/copy the recognised text, paste it in the box above, then tap <b>Auto-fill with AI Bhai</b>.</li>
+        </ol>
+        <a href="https://www.youtube.com/results?search_query=how+to+convert+scanned+pdf+to+text+ocr" target="_blank" rel="noopener">▶ Watch a short how-to</a>
+      </details>
     </div>
     <div class="field"><label>Citation</label><input id="jCite" placeholder="e.g. PLD 2021 SC 451"></div>
     <div class="field"><label>Case name / parties</label><input id="jName" placeholder="e.g. The State vs Imran Khan"></div>
@@ -995,6 +1010,7 @@ $("jAiBtn").onclick=async()=>{
 
 /* SEARCH */
 const FIELD_LABEL={title:"Title",court:"Court",number:"Case/FIR no.",party:"Opposing party",client:"Client",counsel:"Co-counsel",opened:"Opened",next:"Next hearing",notes:"Notes",status:"Status",cite:"Citation",name:"Case name",year:"Year",hold:"Holding",summary:"Summary",url:"Source",tags:"Tags"};
+function hilite(text,q){text=String(text==null?"":text);if(!q)return esc(text);const ql=q.toLowerCase(),tl=text.toLowerCase();let out="",i=0,k;while((k=tl.indexOf(ql,i))>=0){out+=esc(text.slice(i,k))+"<mark>"+esc(text.slice(k,k+q.length))+"</mark>";i=k+q.length;}return out+esc(text.slice(i));}
 function hilite(text,q){text=String(text==null?"":text);if(!q)return esc(text);const ql=q.toLowerCase(),tl=text.toLowerCase();let out="",i=0,k;while((k=tl.indexOf(ql,i))>=0){out+=esc(text.slice(i,k))+"<mark>"+esc(text.slice(k,k+q.length))+"</mark>";i=k+q.length;}return out+esc(text.slice(i));}
 function snippet(text,q){text=String(text==null?"":text);const i=text.toLowerCase().indexOf(q.toLowerCase());const s=Math.max(0,i-30);const part=i<0?text.slice(0,120):text.slice(s,s+150);return (s>0?"…":"")+hilite(part,q)+(text.length>s+150?"…":"");}$("localQ").addEventListener("input",e=>{
   const q=e.target.value.trim();const box=$("localResults");
