@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wakalat — Pakistan's Digital Legal Chambers</title>
+<title>WakeelBook — Every hearing, every file, in one place</title>
 <meta name="theme-color" content="#0B5D3B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,6 +203,38 @@ main{flex:1;width:100%;max-width:var(--maxw);margin:0 auto;padding:22px 18px 80p
 .cal-day .dn{font-weight:700;color:var(--ink-soft)}
 .cal-ev{background:var(--green);color:#fff;border-radius:4px;padding:2px 4px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cal-ev.mine{background:var(--brass);color:#2A1E07}
+.cal-ev.rem{background:#6b4ea8;color:#fff}
+.cal-day{cursor:pointer;transition:.12s}.cal-day:hover{border-color:var(--brass);background:var(--green-tint)}
+.cal-day.out{cursor:default}.cal-day.out:hover{border-color:var(--line-soft);background:var(--paper)}
+.cal-add{position:absolute;opacity:0}
+/* clickable search results */
+.res-item{cursor:pointer}.res-item:hover{border-color:var(--brass);background:var(--green-tint)}
+.res-fields{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.res-f{font-size:10.5px;font-weight:600;background:var(--sand);border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:var(--ink-soft)}
+.res-go{font-size:11px;color:var(--brass);font-weight:600;float:right}
+/* helptip */
+.helptip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--brass);color:var(--brass);font-size:11px;font-weight:700;cursor:help;margin-left:6px}
+.helptip .tipbox{display:none;position:absolute;bottom:130%;right:-6px;width:250px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:12px 13px;font-size:12px;color:var(--ink-soft);font-weight:400;z-index:20;line-height:1.5}
+.helptip:hover .tipbox{display:block}
+.helptip .tipbox::after{content:"";position:absolute;top:100%;right:10px;border:7px solid transparent;border-top-color:var(--card)}
+.helptip .tipbox b{color:var(--green-deep);display:block;margin-bottom:5px}
+[data-theme="dark"] .helptip .tipbox b{color:var(--green)}
+.helptip .tipbox ol{margin:0 0 8px 16px}.helptip .tipbox a{display:block;color:var(--brass);font-weight:600;margin-top:4px}
+.aikey-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.aikey-row input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);font-size:12.5px}
+/* link chips + custom fields */
+.link-pick{display:flex;flex-wrap:wrap;gap:7px;max-height:120px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);padding:9px;background:var(--paper)}
+.link-opt{font-size:12px;border:1px solid var(--line);border-radius:20px;padding:5px 11px;cursor:pointer;background:var(--card);color:var(--ink-soft)}
+.link-opt.on{background:var(--green-tint);border-color:var(--green);color:var(--green-deep);font-weight:600}
+[data-theme="dark"] .link-opt.on{color:var(--green)}
+.tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tagrow .tg{font-size:11px;background:var(--green-tint);border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:var(--green-deep)}
+[data-theme="dark"] .tagrow .tg{color:var(--green)}
+.cf-row{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px;margin-bottom:8px}
+.cf-row input{padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+.cf-row button{border:1px solid var(--line);background:var(--sand);border-radius:7px;color:var(--red);cursor:pointer;padding:0 12px}
+.case .cflist{display:flex;flex-wrap:wrap;gap:5px 14px;font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+.case .cflist b{color:var(--ink)}
 
 /* search */
 .search-block{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
@@ -266,7 +298,7 @@ details.help a{color:var(--brass)}
     <div class="gate-card">
       <div class="brand">
         <svg class="seal" width="78" height="78" viewBox="0 0 80 80" id="sealAuth"></svg>
-        <div class="wordmark"><span class="ur">وکالت</span><span class="en">Wakalat</span></div>
+        <div class="wordmark"><span class="ur">وکیل بک</span><span class="en">WakeelBook</span></div>
         <div class="slogan">Every hearing, every file, in one place.</div>
       </div>
       <div class="tabs" id="authTabs">
@@ -301,7 +333,7 @@ details.help a{color:var(--brass)}
   <div class="gate-wrap">
     <div class="gate-card" id="adminLock">
       <div class="brand"><svg class="seal" width="58" height="58" viewBox="0 0 80 80" id="sealAdmin"></svg>
-        <div class="wordmark"><span class="ur">وکالت</span><span class="en" style="font-size:20px">Admin</span></div></div>
+        <div class="wordmark"><span class="ur">وکیل بک</span><span class="en" style="font-size:20px">Admin</span></div></div>
       <h2 class="gate-h">Owner console</h2>
       <p class="gate-sub">Enter your admin PIN to manage subscriptions.</p>
       <div class="field"><label>Admin PIN</label><input id="adminPin" type="password" placeholder="••••" style="text-align:center;letter-spacing:4px;font-size:18px"></div>
@@ -359,7 +391,7 @@ details.help a{color:var(--brass)}
 <div id="appShell" class="hidden">
   <div class="topbar">
     <div class="tb-brand"><svg class="seal" width="34" height="34" viewBox="0 0 80 80" id="sealTop"></svg>
-      <div><span class="ur">وکالت</span> <span class="en">Wakalat</span></div></div>
+      <div><span class="ur">وکیل بک</span> <span class="en">WakeelBook</span></div></div>
     <div class="tb-right">
       <button class="icon-btn" id="themeBtn" title="Theme">◐</button>
       <button class="userchip" id="userChip"><span class="av" id="chipAv">?</span><span class="nm" id="chipName">You</span></button>
@@ -478,6 +510,7 @@ details.help a{color:var(--brass)}
             <li>Paste it above and press <b>Save key</b>. Done — the “Auto-fill with AI” button in Judgments now works.</li>
           </ol>
           Flash has a generous free tier. Keep your key private.
+          <a href="https://www.youtube.com/results?search_query=how+to+get+gemini+api+key+google+ai+studio" target="_blank" rel="noopener" style="display:block;margin-top:6px">▶ Watch a 2-min video guide</a>
         </details>
       </div>
 
@@ -531,6 +564,9 @@ details.help a{color:var(--brass)}
       <div class="field"><label>Next hearing (پیشی)</label><input id="cNext" type="date"></div>
     </div>
     <div class="field"><label>Remarks / notes</label><textarea id="cNotes" placeholder="Adjournment reason, directions, follow-ups, what to prepare…"></textarea></div>
+    <div class="field"><label>Your own sections <span class="hint" style="display:inline;font-weight:400">(add any field you track — category, stage, fee, witness…)</span></label>
+      <div id="cCustom"></div>
+      <button class="btn sm" id="cAddField" type="button">＋ Add section</button></div>
     <div class="field"><label>Attach PDF / image</label><input id="cFiles" type="file" accept="application/pdf,image/*" multiple>
       <div class="hint">Stored in this browser — keep each file under 3 MB.</div>
       <div class="uploads" id="cUploads"></div></div>
@@ -544,10 +580,21 @@ details.help a{color:var(--brass)}
   <div class="modal-body">
     <input type="hidden" id="jId">
     <div class="field" style="background:var(--green-tint);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px">
-      <label>Auto-fill with AI — paste a judgment URL or its text</label>
+      <label>AI Bhai — paste a judgment URL or its text, I'll fill the rest</label>
       <textarea id="jSource" placeholder="Paste the judgment URL (e.g. https://...) or the full judgment text here…"></textarea>
-      <button class="btn brass sm" id="jAiBtn" style="margin-top:8px">✨ Auto-fill from this</button>
-      <div class="hint" id="jAiHint">Needs your Gemini key in Settings → AI assistant.</div>
+      <button class="btn brass sm" id="jAiBtn" style="margin-top:8px">✨ Auto-fill with AI Bhai</button>
+      <div class="aikey-row">
+        <input id="jKey" type="password" placeholder="Gemini 2.5 Flash API key (saved on this device)">
+        <span class="helptip">?
+          <span class="tipbox">
+            <b>Get a free Gemini API key</b>
+            <ol><li>Open Google AI Studio</li><li>Click <b>Create API key</b></li><li>Copy the <b>AIza…</b> key &amp; paste it here</li></ol>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Open AI Studio →</a>
+            <a href="https://www.youtube.com/results?search_query=how+to+get+gemini+api+key+google+ai+studio" target="_blank" rel="noopener">Watch a 2-min guide →</a>
+          </span>
+        </span>
+      </div>
+      <div class="hint" id="jAiHint">Your key stays in this browser only.</div>
     </div>
     <div class="field"><label>Citation</label><input id="jCite" placeholder="e.g. PLD 2021 SC 451"></div>
     <div class="field"><label>Case name / parties</label><input id="jName" placeholder="e.g. The State vs Imran Khan"></div>
@@ -558,6 +605,9 @@ details.help a{color:var(--brass)}
     <div class="field"><label>Key holding</label><textarea id="jHold" placeholder="The ratio / principle decided…"></textarea></div>
     <div class="field"><label>Summary</label><textarea id="jSummary" placeholder="Short summary of facts &amp; decision…"></textarea></div>
     <div class="field"><label>Personal notes</label><textarea id="jNotes" placeholder="How this helps your matter, where to cite it…"></textarea></div>
+    <div class="field"><label>Tags <span class="hint" style="display:inline;font-weight:400">(comma separated — AI Bhai suggests these)</span></label><input id="jTags" placeholder="e.g. bail, section 497, narcotics"></div>
+    <div class="field"><label>Link to my / client cases <span class="hint" style="display:inline;font-weight:400">(tap to link — you can pick several)</span></label>
+      <div class="link-pick" id="jLinks"></div></div>
     <div class="field"><label>Source URL</label><input id="jUrl" placeholder="https://…"></div>
     <div class="field"><label>Attach PDF / image</label><input id="jFiles" type="file" accept="application/pdf,image/*" multiple>
       <div class="hint">Stored in this browser — keep each file under 3 MB.</div>
@@ -585,6 +635,18 @@ details.help a{color:var(--brass)}
     <div class="field"><label>Enter the unlock code we send you</label><input id="unlockInput" placeholder="Paste unlock code" style="font-family:'Spline Sans Mono',monospace;text-align:center"></div>
     <button class="btn primary wide" id="unlockBtn">Unlock saving</button>
     <div class="note">Questions? Email <b id="payEmail"></b></div>
+  </div>
+</div></div>
+
+<!-- ============ REMINDER MODAL ============ -->
+<div class="overlay" id="remOverlay"><div class="modal" style="max-width:440px">
+  <div class="modal-head"><h3 id="remTitle">Reminders</h3><button class="icon-btn" id="remClose" style="border-color:var(--line);background:var(--sand);color:var(--ink)">✕</button></div>
+  <div class="modal-body">
+    <input type="hidden" id="remDate">
+    <div id="remList" style="margin-bottom:14px"></div>
+    <div class="field"><label>Add a reminder for this day</label><input id="remText" placeholder="e.g. File written submissions"></div>
+    <button class="btn primary wide" id="remAdd">Add reminder</button>
+    <div class="note">Enable browser alerts with the 🔔 button on the Hearings tab to be notified within 2 days.</div>
   </div>
 </div></div>
 
@@ -635,14 +697,14 @@ const DB={
   get(k,def){try{const v=localStorage.getItem(DB.key(k));return v?JSON.parse(v):def}catch(e){return def}},
   set(k,v){try{localStorage.setItem(DB.key(k),JSON.stringify(v));return true}catch(e){toast("Storage full — remove some attachments or back up & clear");return false}}
 };
-let state={email:null,profile:null,sub:null,mine:[],client:[],judge:[],aikey:null,calMonth:new Date()};
+let state={email:null,profile:null,sub:null,mine:[],client:[],judge:[],reminders:[],aikey:null,calMonth:new Date()};
 
 /* ===== seal ===== */
 function sealSVG(withText){
   const base=`<circle class="disc" cx="40" cy="40" r="37"/><circle class="ring" cx="40" cy="40" r="37"/><circle class="ring2" cx="40" cy="40" r="32.5"/>`;
   const scales=`<g class="scale"><line x1="40" y1="26" x2="40" y2="56"/><circle class="dot" cx="40" cy="24" r="2.4" stroke="none"/><line x1="24" y1="33" x2="56" y2="33"/><line x1="24" y1="33" x2="19" y2="44"/><line x1="24" y1="33" x2="29" y2="44"/><path d="M19 44a5 5 0 0 0 10 0"/><line x1="56" y1="33" x2="51" y2="44"/><line x1="56" y1="33" x2="61" y2="44"/><path d="M51 44a5 5 0 0 0 10 0"/><line x1="31" y1="56" x2="49" y2="56"/></g>`;
   let text="";
-  if(withText)text=`<defs><path id="sp" d="M40,40 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0"/></defs><text class="sealtext"><textPath href="#sp" startOffset="0%">وکالت · WAKALAT · PAKISTAN · LEGAL · </textPath></text>`;
+  if(withText)text=`<defs><path id="sp" d="M40,40 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0"/></defs><text class="sealtext"><textPath href="#sp" startOffset="0%">وکیل بک · WAKEELBOOK · PAKISTAN · </textPath></text>`;
   return base+text+scales;
 }
 ["sealAuth","sealAdmin","sealTop"].forEach(id=>{if($(id))$(id).innerHTML=sealSVG(id==="sealAuth");});
@@ -660,7 +722,7 @@ $("rgBtn").onclick=()=>{
   users[email]={name,email,phone,pass:hash32(pass+email),createdAt:todayISO()};
   DB.saveUsers(users);DB.setSession(email);state.email=email;
   localStorage.setItem(DB.key("profile"),JSON.stringify({fullName:name}));
-  toast("Welcome to Wakalat");route();
+  toast("Welcome to WakeelBook");route();
 };
 $("liBtn").onclick=()=>{
   const u=findUserByLogin($("liEmail").value),pass=$("liPass").value;
@@ -700,7 +762,7 @@ $("adGen").onclick=()=>{
       ${email?`<button class="btn sm" id="adMail">Email to ${esc(email)}</button>`:""}
     </div>`;
   $("adCopy").onclick=()=>navigator.clipboard?.writeText(code).then(()=>toast("Copied"),()=>toast(code));
-  if(email)$("adMail").onclick=()=>{const sub="Your Wakalat unlock code";const body=`Assalam o Alaikum,\n\nThank you for subscribing to Wakalat (${PLANS[plan].label}).\n\nYour unlock code:\n${code}\n\nOpen Wakalat → Settings → Subscribe / renew → paste this code → Unlock saving.\nIt is valid until ${fmtDate(expiresAt)}.\n\nRegards,\nWakalat`;window.open(`mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);};
+  if(email)$("adMail").onclick=()=>{const sub="Your WakeelBook unlock code";const body=`Assalam o Alaikum,\n\nThank you for subscribing to WakeelBook (${PLANS[plan].label}).\n\nYour unlock code:\n${code}\n\nOpen WakeelBook → Settings → Subscribe / renew → paste this code → Unlock saving.\nIt is valid until ${fmtDate(expiresAt)}.\n\nRegards,\nWakeelBook`;window.open(`mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);};
 };
 function renderAdminReqs(){
   const r=DB.reqs();
@@ -713,7 +775,7 @@ function makeUnlock(ref,plan,expiresAt){const base=`${ref}|${plan}|${expiresAt}`
 function verifyUnlock(token,ref){try{const[b64,sig]=token.trim().split(".");if(!b64||!sig)return{ok:false,msg:"That code looks incomplete"};const base=atob(b64);if(hash32(base+ACTIVATION_SECRET)!==sig)return{ok:false,msg:"Invalid unlock code"};const[r,plan,exp]=base.split("|");if(r!==ref)return{ok:false,msg:"This code was issued for a different account"};if(exp<todayISO())return{ok:false,msg:"This code has expired"};return{ok:true,plan,expiresAt:exp};}catch(e){return{ok:false,msg:"Could not read that code"};}}
 
 /* ===== ROUTING ===== */
-function loadState(){state.profile=DB.get("profile",null);state.sub=DB.get("sub",null);state.mine=DB.get("mine",[]);state.client=DB.get("client",[]);state.judge=DB.get("judge",[]);state.aikey=DB.get("aikey",null);}
+function loadState(){state.profile=DB.get("profile",null);state.sub=DB.get("sub",null);state.mine=DB.get("mine",[]);state.client=DB.get("client",[]);state.judge=DB.get("judge",[]);state.reminders=DB.get("reminders",[]);state.aikey=DB.get("aikey",null);}
 function isAdmin(){return state.email===ADMIN_EMAIL;}
 function subActive(){return isAdmin()||(state.sub&&state.sub.expiresAt&&state.sub.expiresAt>=todayISO());}
 function canSave(){return subActive();}
@@ -758,10 +820,12 @@ $("remindBtn").onclick=()=>{
 };
 function fireReminders(){
   if(localStorage.getItem("wakalat.remind")!=="1"||Notification.permission!=="granted")return;
-  const soon=[...state.mine,...state.client].filter(c=>c.status==="Active"&&c.next&&daysFromToday(c.next)>=0&&daysFromToday(c.next)<=2);
+  const hearings=[...state.mine,...state.client].filter(c=>c.status==="Active"&&c.next&&daysFromToday(c.next)>=0&&daysFromToday(c.next)<=2).map(c=>`${c.title} · ${fmtDate(c.next)}`);
+  const rems=state.reminders.filter(r=>{const d=daysFromToday(r.date);return d!=null&&d>=0&&d<=2;}).map(r=>`🔔 ${r.text} · ${fmtDate(r.date)}`);
+  const soon=[...hearings,...rems];
   const key="wakalat.remind.fired."+todayISO();
   if(soon.length&&localStorage.getItem(key)!=="1"){
-    new Notification("Wakalat — upcoming hearing",{body:soon.map(c=>`${c.title} · ${fmtDate(c.next)}`).join("\n")});
+    new Notification("WakeelBook — coming up",{body:soon.join("\n")});
     localStorage.setItem(key,"1");
   }
 }
@@ -791,7 +855,8 @@ function renderCases(kind){
     const d=c.next?daysFromToday(c.next):null;
     const nextHtml=c.next&&c.status==="Active"?`<div class="next ${d<0?'due':''}">Next hearing: ${fmtDate(c.next)}${d!=null?` · ${d<0?Math.abs(d)+'d overdue':d===0?'today':d+'d away'}`:''}</div>`:"";
     const files=(c.files||[]).map((f,i)=>`<a class="file-chip" href="${f.data}" download="${esc(f.name)}" target="_blank">${f.type&&f.type.includes('pdf')?'📄':'🖼'} ${esc(f.name)}</a>`).join("");
-    return `<div class="case"><div class="top"><div class="name">${esc(c.title)}</div><span class="st ${c.status.toLowerCase()}">${c.status}</span></div><div class="meta">${c.court?`<span>⚖︎ ${esc(c.court)}</span>`:""}${c.number?`<span># ${esc(c.number)}</span>`:""}${kind==="client"&&c.client?`<span>👤 ${esc(c.client)}</span>`:""}${c.party?`<span>vs ${esc(c.party)}</span>`:""}</div>${nextHtml}${c.notes?`<div class="rem">${esc(c.notes)}</div>`:""}${files?`<div class="files">${files}</div>`:""}<div class="acts"><button class="btn sm" onclick="editCase('${kind}','${c.id}')">Edit</button><button class="btn sm" onclick="delCase('${kind}','${c.id}')" style="color:var(--red)">Delete</button></div></div>`;
+    const cf=(c.custom||[]).filter(x=>x.label||x.value).map(x=>`<span><b>${esc(x.label||'—')}:</b> ${esc(x.value)}</span>`).join("");
+    return `<div class="case"><div class="top"><div class="name">${esc(c.title)}</div><span class="st ${c.status.toLowerCase()}">${c.status}</span></div><div class="meta">${c.court?`<span>⚖︎ ${esc(c.court)}</span>`:""}${c.number?`<span># ${esc(c.number)}</span>`:""}${kind==="client"&&c.client?`<span>👤 ${esc(c.client)}</span>`:""}${c.party?`<span>vs ${esc(c.party)}</span>`:""}</div>${nextHtml}${c.notes?`<div class="rem">${esc(c.notes)}</div>`:""}${cf?`<div class="cflist">${cf}</div>`:""}${files?`<div class="files">${files}</div>`:""}<div class="acts"><button class="btn sm" onclick="editCase('${kind}','${c.id}')">Edit</button><button class="btn sm" onclick="delCase('${kind}','${c.id}')" style="color:var(--red)">Delete</button></div></div>`;
   }).join("");
 }
 ["mineSearch","mineFilter"].forEach(id=>$(id).addEventListener("input",()=>renderCases("mine")));
@@ -806,8 +871,16 @@ function openCase(kind,c){
   $("cNumber").value=c?.number||"";$("cParty").value=c?.party||"";$("cClient").value=c?.client||"";$("cCounsel").value=c?.counsel||"";
   $("cOpened").value=c?.opened||"";$("cNext").value=c?.next||"";$("cNotes").value=c?.notes||"";
   caseUploads=(c?.files||[]).slice();$("cFiles").value="";renderUploadChips("cUploads",caseUploads);
+  caseCustom=(c?.custom||[]).slice();renderCustomRows();
   $("caseOverlay").classList.add("on");
 }
+let caseCustom=[];
+function renderCustomRows(){
+  $("cCustom").innerHTML=caseCustom.map((f,i)=>`<div class="cf-row"><input placeholder="Section name" value="${esc(f.label||'')}" data-k="label" data-i="${i}"><input placeholder="Detail" value="${esc(f.value||'')}" data-k="value" data-i="${i}"><button data-rm="${i}">✕</button></div>`).join("");
+  $("cCustom").querySelectorAll("input").forEach(inp=>inp.oninput=()=>{caseCustom[+inp.dataset.i][inp.dataset.k]=inp.value;});
+  $("cCustom").querySelectorAll("button[data-rm]").forEach(b=>b.onclick=()=>{caseCustom.splice(+b.dataset.rm,1);renderCustomRows();});
+}
+$("cAddField").onclick=()=>{caseCustom.push({label:"",value:""});renderCustomRows();};
 function renderUploadChips(boxId,arr){$(boxId).innerHTML=arr.map((f,i)=>`<span class="file-chip">${f.type&&f.type.includes('pdf')?'📄':'🖼'} ${esc(f.name)} <button onclick="this.parentNode.dispatchEvent(new CustomEvent('rm',{bubbles:true}))" data-i="${i}" style="border:none;background:none;color:var(--red);cursor:pointer">✕</button></span>`).join("");}
 $("cUploads").addEventListener("rm",e=>{const i=+e.target.getAttribute("data-i");caseUploads.splice(i,1);renderUploadChips("cUploads",caseUploads);});
 $("cFiles").onchange=e=>{readFiles(e.target.files,fs=>{caseUploads=caseUploads.concat(fs);renderUploadChips("cUploads",caseUploads);});};
@@ -820,7 +893,7 @@ $("caseSave").onclick=()=>{
   if(!canSave()){closeCase();openSub();return;}
   const kind=$("cKind").value,title=$("cTitle").value.trim();
   if(!title){toast("Give the matter a title");return;}
-  const obj={id:$("cId").value||("c"+Date.now()),title,status:$("cStatus").value,court:$("cCourt").value,number:$("cNumber").value.trim(),party:$("cParty").value.trim(),client:$("cClient").value.trim(),counsel:$("cCounsel").value.trim(),opened:$("cOpened").value,next:$("cNext").value,notes:$("cNotes").value.trim(),files:caseUploads};
+  const obj={id:$("cId").value||("c"+Date.now()),title,status:$("cStatus").value,court:$("cCourt").value,number:$("cNumber").value.trim(),party:$("cParty").value.trim(),client:$("cClient").value.trim(),counsel:$("cCounsel").value.trim(),opened:$("cOpened").value,next:$("cNext").value,notes:$("cNotes").value.trim(),custom:caseCustom.filter(x=>x.label||x.value),files:caseUploads};
   const arr=kind==="mine"?state.mine:state.client;const i=arr.findIndex(x=>x.id===obj.id);
   if(i>=0)arr[i]=obj;else arr.unshift(obj);
   if(DB.set(kind==="mine"?"mine":"client",arr)){closeCase();renderAll();toast("Saved");}
@@ -836,18 +909,32 @@ function renderJudge(){
   if(!rows.length){$("judgeList").innerHTML=`<div class="empty"><svg class="seal" width="64" height="64" viewBox="0 0 80 80">${sealSVG(false)}</svg><h3>${state.judge.length?'Nothing matches':'No judgments saved'}</h3><p>${state.judge.length?'Clear the search.':'Paste a judgment URL or text and let AI fill the details.'}</p>${state.judge.length?'':`<button class="btn primary" onclick="document.getElementById('addJudge').click()">＋ New judgment</button>`}</div>`;return;}
   $("judgeList").innerHTML=rows.map(j=>{
     const files=(j.files||[]).map(f=>`<a class="file-chip" href="${f.data}" download="${esc(f.name)}" target="_blank">${f.type&&f.type.includes('pdf')?'📄':'🖼'} ${esc(f.name)}</a>`).join("");
-    return `<div class="jcard">${j.cite?`<div class="jcite">${esc(j.cite)}</div>`:""}<div class="jname">${esc(j.name||"Untitled")}</div><div class="jmeta">${esc(j.court||"")}${j.year?` · ${esc(j.year)}`:""}${j.url?` · <a href="${esc(j.url)}" target="_blank" rel="noopener" style="color:var(--brass)">source</a>`:""}</div>${j.hold?`<div class="jhold"><b>Holding:</b> ${esc(j.hold)}</div>`:""}${j.notes?`<div class="jnotes">${esc(j.notes)}</div>`:""}${files?`<div class="files" style="margin-top:8px">${files}</div>`:""}<div class="acts" style="display:flex;gap:7px;margin-top:12px"><button class="btn sm" onclick="editJudge('${j.id}')">Edit</button><button class="btn sm" onclick="delJudge('${j.id}')" style="color:var(--red)">Delete</button></div></div>`;
+    const tags=(j.tags||[]).map(t=>`<span class="tg">${esc(t)}</span>`).join("");
+    const links=(j.links||[]).map(ref=>{const nm=caseNameByRef(ref);return nm?`<span class="file-chip">🔗 ${esc(nm)}</span>`:"";}).join("");
+    return `<div class="jcard">${j.cite?`<div class="jcite">${esc(j.cite)}</div>`:""}<div class="jname">${esc(j.name||"Untitled")}</div><div class="jmeta">${esc(j.court||"")}${j.year?` · ${esc(j.year)}`:""}${j.url?` · <a href="${esc(j.url)}" target="_blank" rel="noopener" style="color:var(--brass)">source</a>`:""}</div>${j.hold?`<div class="jhold"><b>Holding:</b> ${esc(j.hold)}</div>`:""}${j.notes?`<div class="jnotes">${esc(j.notes)}</div>`:""}${tags?`<div class="tagrow">${tags}</div>`:""}${links?`<div class="files" style="margin-top:8px">${links}</div>`:""}${files?`<div class="files" style="margin-top:8px">${files}</div>`:""}<div class="acts" style="display:flex;gap:7px;margin-top:12px"><button class="btn sm" onclick="editJudge('${j.id}')">Edit</button><button class="btn sm" onclick="delJudge('${j.id}')" style="color:var(--red)">Delete</button></div></div>`;
   }).join("");
 }
+function caseNameByRef(ref){const[kind,id]=ref.split(":");const arr=kind==="mine"?state.mine:state.client;const c=arr.find(x=>x.id===id);return c?c.title:null;}
 $("judgeSearch").addEventListener("input",renderJudge);
 let judgeUploads=[];
 function openJudge(j){
   $("jId").value=j?.id||"";$("judgeModalTitle").textContent=j?"Edit judgment":"New judgment";
   $("jSource").value="";$("jCite").value=j?.cite||"";$("jName").value=j?.name||"";$("jCourt").value=j?.court||"";$("jYear").value=j?.year||"";$("jHold").value=j?.hold||"";$("jSummary").value=j?.summary||"";$("jNotes").value=j?.notes||"";$("jUrl").value=j?.url||"";
+  $("jTags").value=(j?.tags||[]).join(", ");
+  $("jKey").value=state.aikey||"";
+  judgeLinks=(j?.links||[]).slice();renderLinkPick();
   judgeUploads=(j?.files||[]).slice();$("jFiles").value="";renderUploadChips("jUploads",judgeUploads);
-  $("jAiHint").textContent=state.aikey?"Gemini key found — ready to auto-fill.":"Add your Gemini key in Settings → AI assistant to enable this.";
+  $("jAiHint").textContent=state.aikey?"Key saved — paste a judgment above and tap Auto-fill.":"Add your Gemini key in the box below to enable Auto-fill.";
   $("judgeOverlay").classList.add("on");
 }
+let judgeLinks=[];
+function renderLinkPick(){
+  const opts=[...state.mine.map(c=>({ref:"mine:"+c.id,name:c.title,tag:"My"})),...state.client.map(c=>({ref:"client:"+c.id,name:c.title,tag:"Client"}))];
+  if(!opts.length){$("jLinks").innerHTML=`<span class="hint" style="display:inline">No cases yet — add a case first to link it here.</span>`;return;}
+  $("jLinks").innerHTML=opts.map(o=>`<span class="link-opt ${judgeLinks.includes(o.ref)?'on':''}" data-ref="${o.ref}">${judgeLinks.includes(o.ref)?'✓ ':''}${esc(o.name)} <span style="opacity:.6">· ${o.tag}</span></span>`).join("");
+  $("jLinks").querySelectorAll(".link-opt").forEach(el=>el.onclick=()=>{const r=el.dataset.ref;const i=judgeLinks.indexOf(r);if(i>=0)judgeLinks.splice(i,1);else judgeLinks.push(r);renderLinkPick();});
+}
+$("jKey").addEventListener("change",()=>{state.aikey=$("jKey").value.trim()||null;DB.set("aikey",state.aikey);if(state.aikey)toast("Gemini key saved");});
 $("jUploads").addEventListener("rm",e=>{const i=+e.target.getAttribute("data-i");judgeUploads.splice(i,1);renderUploadChips("jUploads",judgeUploads);});
 $("jFiles").onchange=e=>{readFiles(e.target.files,fs=>{judgeUploads=judgeUploads.concat(fs);renderUploadChips("jUploads",judgeUploads);});};
 $("addJudge").onclick=()=>openJudge(null);
@@ -856,7 +943,7 @@ $("judgeCancel").onclick=()=>$("judgeOverlay").classList.remove("on");
 $("judgeOverlay").addEventListener("click",e=>{if(e.target===$("judgeOverlay"))$("judgeOverlay").classList.remove("on");});
 $("judgeSave").onclick=()=>{
   if(!canSave()){$("judgeOverlay").classList.remove("on");openSub();return;}
-  const obj={id:$("jId").value||("j"+Date.now()),cite:$("jCite").value.trim(),name:$("jName").value.trim(),court:$("jCourt").value.trim(),year:$("jYear").value.trim(),hold:$("jHold").value.trim(),summary:$("jSummary").value.trim(),notes:$("jNotes").value.trim(),url:$("jUrl").value.trim(),files:judgeUploads};
+  const obj={id:$("jId").value||("j"+Date.now()),cite:$("jCite").value.trim(),name:$("jName").value.trim(),court:$("jCourt").value.trim(),year:$("jYear").value.trim(),hold:$("jHold").value.trim(),summary:$("jSummary").value.trim(),notes:$("jNotes").value.trim(),tags:$("jTags").value.split(",").map(t=>t.trim()).filter(Boolean),links:judgeLinks.slice(),url:$("jUrl").value.trim(),files:judgeUploads};
   if(!obj.name&&!obj.cite){toast("Add at least a citation or case name");return;}
   const i=state.judge.findIndex(x=>x.id===obj.id);if(i>=0)state.judge[i]=obj;else state.judge.unshift(obj);
   if(DB.set("judge",state.judge)){$("judgeOverlay").classList.remove("on");renderJudge();renderAlerts();toast("Judgment saved");}
@@ -866,16 +953,18 @@ window.delJudge=id=>{if(!confirm("Delete this judgment?"))return;state.judge=sta
 
 /* AI auto-fill (Gemini 2.5 Flash) */
 $("jAiBtn").onclick=async()=>{
-  const key=state.aikey;if(!key){toast("Add your Gemini key in Settings → AI assistant");$("tabbar").querySelector('[data-view="vSettings"]').click();$("judgeOverlay").classList.remove("on");return;}
+  const key=$("jKey").value.trim()||state.aikey;
+  if(!key){toast("Add your Gemini API key in the box below");$("jKey").focus();return;}
+  state.aikey=key;DB.set("aikey",key);
   let src=$("jSource").value.trim();if(!src){toast("Paste a judgment URL or text first");return;}
-  const btn=$("jAiBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="Reading…";
+  const btn=$("jAiBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="AI Bhai reading…";
   try{
     if(/^https?:\/\/\S+$/i.test(src)){
       $("jUrl").value=src;
       try{const r=await fetch(src);const t=await r.text();src=t.replace(/<[^>]+>/g," ").replace(/\s+/g," ").slice(0,12000);}
       catch(e){toast("Couldn't fetch that URL (site blocked it) — paste the text instead");btn.disabled=false;btn.textContent=old;return;}
     }
-    const prompt=`You are a Pakistani legal research assistant. From the judgment text below, extract structured data. Return ONLY valid JSON (no markdown) with keys: citation, caseName, court, year, keyHolding, summary, notes. "notes" should be a one-line practical note on how a lawyer might use this precedent. If a field is unknown use "".\n\nTEXT:\n${src}`;
+    const prompt=`You are a Pakistani legal research assistant. From the judgment text below, extract structured data. Return ONLY valid JSON (no markdown) with keys: citation, caseName, court, year, keyHolding, summary, notes, tags. "notes" = a one-line practical note on how a lawyer might use this precedent. "tags" = an array of 3-6 short lowercase keywords (topics, sections, principles). If a field is unknown use "" (or [] for tags).\n\nTEXT:\n${src}`;
     const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.2,responseMimeType:"application/json"}})});
     if(!resp.ok){const er=await resp.text();throw new Error(resp.status+" "+er.slice(0,120));}
     const data=await resp.json();
@@ -889,22 +978,45 @@ $("jAiBtn").onclick=async()=>{
     if(j.keyHolding)$("jHold").value=j.keyHolding;
     if(j.summary)$("jSummary").value=j.summary;
     if(j.notes)$("jNotes").value=j.notes;
-    toast("Filled by AI — review & save");
+    if(Array.isArray(j.tags)&&j.tags.length)$("jTags").value=j.tags.join(", ");
+    toast("AI Bhai filled it — review, link cases & save");
   }catch(e){toast("AI error: "+(e.message||"try again"));}
   btn.disabled=false;btn.textContent=old;
 };
 
 /* SEARCH */
-function highlight(text,q){if(!q)return esc(text);const i=text.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(text);return esc(text.slice(0,i))+"<mark>"+esc(text.slice(i,i+q.length))+"</mark>"+esc(text.slice(i+q.length));}
+const FIELD_LABEL={title:"Title",court:"Court",number:"Case/FIR no.",party:"Opposing party",client:"Client",counsel:"Co-counsel",opened:"Opened",next:"Next hearing",notes:"Notes",status:"Status",cite:"Citation",name:"Case name",year:"Year",hold:"Holding",summary:"Summary",url:"Source",tags:"Tags"};
+function snippet(text,q){const i=text.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(text.slice(0,120));const s=Math.max(0,i-30);return (s>0?"…":"")+esc(text.slice(s,i))+"<mark>"+esc(text.slice(i,i+q.length))+"</mark>"+esc(text.slice(i+q.length,i+q.length+60))+"…";}
 $("localQ").addEventListener("input",e=>{
   const q=e.target.value.trim();const box=$("localResults");
   if(!q){box.innerHTML="";return;}
-  const hits=[];
-  const scan=(arr,kind)=>arr.forEach(c=>{const blob=Object.values(c).filter(v=>typeof v==="string").join("  ");if(blob.toLowerCase().includes(q.toLowerCase())){const title=c.title||c.name||c.cite||"Untitled";const ctxField=Object.entries(c).find(([k,v])=>typeof v==="string"&&v.toLowerCase().includes(q.toLowerCase())&&k!=="id");hits.push({kind,title,ctx:ctxField?ctxField[1]:"",id:c.id});}});
-  scan(state.mine,"My case");scan(state.client,"Client case");scan(state.judge,"Judgment");
+  const ql=q.toLowerCase();const hits=[];
+  const scan=(arr,kind,label)=>arr.forEach(c=>{
+    const fields=[];
+    Object.entries(c).forEach(([k,v])=>{
+      if(k==="id"||k==="files")return;
+      if(typeof v==="string"&&v.toLowerCase().includes(ql))fields.push({f:FIELD_LABEL[k]||k,v});
+      else if(Array.isArray(v)){ // tags or custom
+        v.forEach(item=>{
+          if(typeof item==="string"&&item.toLowerCase().includes(ql))fields.push({f:FIELD_LABEL[k]||k,v:item});
+          else if(item&&typeof item==="object"){["label","value"].forEach(kk=>{if(item[kk]&&String(item[kk]).toLowerCase().includes(ql))fields.push({f:item.label||"Section",v:item.value||item.label});});}
+        });
+      }
+    });
+    if(fields.length){const title=c.title||c.name||c.cite||"Untitled";hits.push({kind,label,title,id:c.id,fields});}
+  });
+  scan(state.mine,"mine","My case");scan(state.client,"client","Client case");scan(state.judge,"judge","Judgment");
   if(!hits.length){box.innerHTML=`<div class="empty" style="padding:24px"><p>No matches for “${esc(q)}” across your saved records.</p></div>`;return;}
-  box.innerHTML=hits.map(h=>`<div class="res-item"><div class="rt">${highlight(h.title,q)}<span class="rk">${h.kind}</span></div><div class="rm">${highlight((h.ctx||"").slice(0,160),q)}</div></div>`).join("");
+  box.innerHTML=hits.map((h,idx)=>{
+    const where=h.fields.map(f=>`<span class="res-f">${esc(f.f)}</span>`).join("");
+    const first=h.fields[0];
+    return `<div class="res-item" onclick="gotoResult('${h.kind}','${h.id}')"><div class="rt">${esc(h.title)}<span class="rk">${h.label}</span><span class="res-go">open ›</span></div><div class="rm">${snippet(first.v,q)}</div><div class="res-fields">${where}</div></div>`;
+  }).join("");
 });
+window.gotoResult=(kind,id)=>{
+  if(kind==="judge"){$("tabbar").querySelector('[data-view="vJudge"]').click();openJudge(state.judge.find(j=>j.id===id));}
+  else{$("tabbar").querySelector(`[data-view="${kind==="mine"?"vMine":"vClient"}"]`).click();const arr=kind==="mine"?state.mine:state.client;openCase(kind,arr.find(c=>c.id===id));}
+};
 $("webGo").onclick=()=>{const t=$("webTarget").value,q=$("webQ").value.trim();if(!q){toast("Type what to search");return;}const query=(t?t+" ":"")+q;window.open("https://www.google.com/search?q="+encodeURIComponent(query),"_blank","noopener");};
 $("webQ").addEventListener("keydown",e=>{if(e.key==="Enter")$("webGo").click();});
 
@@ -915,13 +1027,33 @@ function renderCalendar(){
   const y=state.calMonth.getFullYear(),m=state.calMonth.getMonth();
   $("calLabel").textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
   const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),events={};
-  const add=(c,mine)=>{if(c.next)(events[c.next]=events[c.next]||[]).push({t:c.title,mine});};
+  const add=(c,mine)=>{if(c.next)(events[c.next]=events[c.next]||[]).push({t:c.title,kind:mine?'mine':'client'});};
   state.mine.forEach(c=>add(c,true));state.client.forEach(c=>add(c,false));
+  state.reminders.forEach(r=>{(events[r.date]=events[r.date]||[]).push({t:r.text,kind:'rem'});});
   let html=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>`<div class="cal-dow">${d}</div>`).join("");
   for(let i=0;i<first;i++)html+=`<div class="cal-day out"></div>`;
-  for(let day=1;day<=dim;day++){const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const evs=(events[iso]||[]).map(e=>`<div class="cal-ev ${e.mine?'mine':''}" title="${esc(e.t)}">${esc(e.t)}</div>`).join("");html+=`<div class="cal-day ${iso===todayISO()?'today':''}"><div class="dn">${day}</div>${evs}</div>`;}
+  for(let day=1;day<=dim;day++){const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const evs=(events[iso]||[]).map(e=>`<div class="cal-ev ${e.kind}" title="${esc(e.t)}">${e.kind==='rem'?'🔔 ':''}${esc(e.t)}</div>`).join("");html+=`<div class="cal-day ${iso===todayISO()?'today':''}" onclick="openReminders('${iso}')"><div class="dn">${day}</div>${evs}</div>`;}
   $("calGrid").innerHTML=html;
 }
+window.openReminders=(iso)=>{
+  $("remDate").value=iso;
+  $("remTitle").textContent="Reminders · "+fmtDate(iso);
+  renderRemList();$("remText").value="";
+  $("remOverlay").classList.add("on");
+};
+function renderRemList(){
+  const iso=$("remDate").value;
+  const list=state.reminders.filter(r=>r.date===iso);
+  $("remList").innerHTML=list.length?list.map(r=>`<div class="kv"><span class="v" style="text-align:left;font-weight:500">🔔 ${esc(r.text)}</span><button class="link danger" onclick="delReminder('${r.id}')">remove</button></div>`).join(""):`<div class="hint" style="display:block">No reminders on this day yet.</div>`;
+}
+$("remAdd").onclick=()=>{
+  const txt=$("remText").value.trim();if(!txt){toast("Type the reminder");return;}
+  state.reminders.push({id:"r"+Date.now(),date:$("remDate").value,text:txt});
+  DB.set("reminders",state.reminders);$("remText").value="";renderRemList();renderCalendar();toast("Reminder added");
+};
+window.delReminder=id=>{state.reminders=state.reminders.filter(r=>r.id!==id);DB.set("reminders",state.reminders);renderRemList();renderCalendar();};
+$("remClose").onclick=()=>$("remOverlay").classList.remove("on");
+$("remOverlay").addEventListener("click",e=>{if(e.target===$("remOverlay"))$("remOverlay").classList.remove("on");});
 
 /* SETTINGS */
 function renderSettings(){
@@ -936,11 +1068,11 @@ function renderSettings(){
 $("aiSave").onclick=()=>{const k=$("aiKey").value.trim();state.aikey=k||null;DB.set("aikey",state.aikey);toast(k?"Gemini key saved":"Key cleared");};
 $("aiClear").onclick=()=>{$("aiKey").value="";state.aikey=null;DB.set("aikey",null);toast("Key removed");};
 $("editProfile").onclick=()=>{openProfile();showOnly("profileScreen");};
-$("exportData").onclick=()=>{const dump={profile:state.profile,sub:state.sub,mine:state.mine,client:state.client,judge:state.judge,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(dump,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`wakalat-backup-${todayISO()}.json`;a.click();toast("Backup downloaded");};
+$("exportData").onclick=()=>{const dump={profile:state.profile,sub:state.sub,mine:state.mine,client:state.client,judge:state.judge,reminders:state.reminders,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(dump,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`wakalat-backup-${todayISO()}.json`;a.click();toast("Backup downloaded");};
 $("importBtn").onclick=()=>$("importFile").click();
-$("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);["profile","sub","mine","client","judge"].forEach(k=>{if(d[k]!==undefined){state[k]=d[k];DB.set(k,d[k]);}});renderAll();enterApp();toast("Backup restored");}catch(err){toast("That file could not be read");}};r.readAsText(f);};
+$("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);["profile","sub","mine","client","judge","reminders"].forEach(k=>{if(d[k]!==undefined){state[k]=d[k];DB.set(k,d[k]);}});renderAll();enterApp();toast("Backup restored");}catch(err){toast("That file could not be read");}};r.readAsText(f);};
 $("signoutBtn").onclick=signOut;
-$("deleteAcct").onclick=()=>{if(prompt('Type DELETE to permanently remove this account and all its data:')!=="DELETE")return;["profile","sub","mine","client","judge","aikey"].forEach(k=>localStorage.removeItem(DB.key(k)));const users=DB.users();delete users[state.email];DB.saveUsers(users);DB.setSession(null);state.email=null;toast("Account deleted");route();};
+$("deleteAcct").onclick=()=>{if(prompt('Type DELETE to permanently remove this account and all its data:')!=="DELETE")return;["profile","sub","mine","client","judge","reminders","aikey"].forEach(k=>localStorage.removeItem(DB.key(k)));const users=DB.users();delete users[state.email];DB.saveUsers(users);DB.setSession(null);state.email=null;toast("Account deleted");route();};
 $("subscribeBtn").onclick=openSub;
 
 /* SUBSCRIPTION */
@@ -956,8 +1088,8 @@ $("subClose").onclick=()=>$("subOverlay").classList.remove("on");
 $("subOverlay").addEventListener("click",e=>{if(e.target===$("subOverlay"))$("subOverlay").classList.remove("on");});
 $("planPick").addEventListener("click",e=>{const p=e.target.closest(".plan");if(!p)return;chosenPlan=p.dataset.plan;[...$("planPick").children].forEach(x=>x.classList.toggle("on",x===p));});
 function logRequest(){const u=DB.users()[state.email]||{};const reqs=DB.reqs();reqs.push({name:state.profile?.fullName||u.name||"",email:state.email,phone:u.phone||"",ref:refCode(),plan:PLANS[chosenPlan].label,at:new Date().toISOString()});DB.saveReqs(reqs);}
-$("waBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const msg=`Assalam o Alaikum, I want the Wakalat ${pl.label} plan (${pl.price}).\nName: ${state.profile?.fullName||""}\nEmail: ${state.email}\nReference: ${refCode()}\nI will send the payment receipt.`;window.open(`https://wa.me/${PAY.WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank","noopener");};
-$("emailReqBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const sub="Wakalat subscription request";const body=`Name: ${state.profile?.fullName||""}\nEmail: ${state.email}\nReference: ${refCode()}\nPlan: ${pl.label} (${pl.price})\n\nI have paid / will pay and attach the receipt.`;window.open(`mailto:${PAY.EMAIL}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);};
+$("waBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const msg=`Assalam o Alaikum, I want the WakeelBook ${pl.label} plan (${pl.price}).\nName: ${state.profile?.fullName||""}\nEmail: ${state.email}\nReference: ${refCode()}\nI will send the payment receipt.`;window.open(`https://wa.me/${PAY.WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank","noopener");};
+$("emailReqBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const sub="WakeelBook subscription request";const body=`Name: ${state.profile?.fullName||""}\nEmail: ${state.email}\nReference: ${refCode()}\nPlan: ${pl.label} (${pl.price})\n\nI have paid / will pay and attach the receipt.`;window.open(`mailto:${PAY.EMAIL}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);};
 $("unlockBtn").onclick=()=>{const res=verifyUnlock($("unlockInput").value,refCode());if(!res.ok){toast(res.msg);return;}state.sub={plan:res.plan,activatedAt:todayISO(),expiresAt:res.expiresAt};DB.set("sub",state.sub);$("subOverlay").classList.remove("on");$("trialBanner").classList.add("hidden");renderSettings();toast("Unlocked — you can save now");};
 
 function signOut(){DB.setSession(null);state.email=null;["liEmail","liPass","rgName","rgEmail","rgPhone","rgPass"].forEach(i=>{if($(i))$(i).value="";});route();toast("Signed out");}
