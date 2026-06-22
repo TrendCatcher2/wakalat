@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.paklawyers.notebook",
+        "sha256_cert_fingerprints": ["A6:BB:77:7C:F5:74:55:9E:7E:C0:AC:CB:C7:B3:7D:1C:AE:C6:D8:89:AA:1E:2A:F1:FC:E3:A2:AF:52:AA:FE:C9"]
+      }
+    }]
