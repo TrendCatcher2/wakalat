@@ -356,6 +356,20 @@ details.help a{color:var(--brass)}
 .fab{position:fixed;right:20px;bottom:22px;width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(180deg,var(--brass-soft),var(--brass));color:#2A1E07;font-size:26px;box-shadow:0 6px 22px rgba(169,120,31,.45);z-index:50;display:grid;place-items:center}
 
 @media(max-width:560px){.grid2{grid-template-columns:1fr}.plans{grid-template-columns:1fr}.userchip .nm{display:none}main{padding:18px 13px 80px}}
+
+/* modern touches */
+.stat{position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--green),var(--teal),var(--brass))}
+.page-head h2{background:linear-gradient(92deg,var(--ink),var(--green-deep));-webkit-background-clip:text;background-clip:text}
+[data-theme="dark"] .page-head h2{background:none;-webkit-text-fill-color:initial;color:var(--ink)}
+.btn.primary,.btn.brass{transition:transform .12s,filter .12s,box-shadow .12s}
+.btn.primary:active,.btn.brass:active{transform:translateY(1px)}
+.case,.jcard{transition:transform .16s,box-shadow .16s,border-color .16s}
+.case:hover,.jcard:hover{box-shadow:0 10px 30px rgba(20,32,24,.10)}
+.fab{transition:transform .15s,box-shadow .15s}.fab:hover{transform:scale(1.08) rotate(90deg)}
+.topbar{background:linear-gradient(110deg,var(--green-deep),var(--green) 60%,var(--teal))}
+::selection{background:var(--brass);color:#1a1205}
+@media(max-width:560px){.primnav button{padding:9px 13px;font-size:13px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
@@ -697,6 +711,24 @@ details.help a{color:var(--brass)}
         <div style="margin-top:14px"><button class="btn" id="editProfile">Edit profile</button></div>
       </div>
 
+      <div class="panel"><h3>Cloud sync — use on any device</h3>
+        <div class="desc">Optional. Connect a free Supabase project once; then log in on any device to access all your data. Without it, use Download/Restore below to move data manually.</div>
+        <div class="field"><label>Supabase Project URL</label><input id="supaUrl" placeholder="https://xxxx.supabase.co"></div>
+        <div class="field"><label>Supabase anon public key</label><input id="supaKey" type="password" placeholder="eyJhbGci…"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" id="supaSave">Connect &amp; sync</button><button class="btn" id="supaUp">Sync up ↑</button><button class="btn" id="supaDown">Sync down ↓</button><button class="btn sm" id="supaOff">Disconnect</button></div>
+        <div class="hint" id="supaStatus" style="margin-top:8px"></div>
+        <details class="help"><summary>One-time setup (≈2 minutes)</summary>
+          <ol>
+            <li>Create a free project at <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>.</li>
+            <li>Open <b>SQL editor</b> and run:<br><code style="display:block;white-space:pre-wrap;background:var(--sand);padding:8px;border-radius:6px;margin-top:6px;font-size:11px">create table vault (email text primary key, account jsonb, data jsonb, updated_at timestamptz);
+alter table vault enable row level security;
+create policy "rw" on vault for all using (true) with check (true);</code></li>
+            <li>In <b>Project settings → API</b>, copy the <b>Project URL</b> and <b>anon public</b> key into the boxes above, then <b>Connect &amp; sync</b>.</li>
+            <li>On another device, log in with the same email/password — your data loads automatically.</li>
+          </ol>
+        </details>
+      </div>
+
       <div class="panel"><h3>Data</h3>
         <div class="desc">Everything is stored privately in this browser. Back it up regularly.</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -736,7 +768,7 @@ details.help a{color:var(--brass)}
       <div class="field"><label>Court</label><select id="cCourt"><option value="">Choose…</option><option>Supreme Court of Pakistan</option><option>Lahore High Court</option><option>Sindh High Court</option><option>Balochistan High Court</option><option>Peshawar High Court</option><option>Islamabad High Court</option><option>District &amp; Sessions Court</option><option>Civil Court</option><option>Family Court</option><option>Banking Court</option><option>Anti-Terrorism Court</option><option>Tribunal</option><option>Other</option></select></div>
     </div>
     <div class="grid2">
-      <div class="field"><label>Category</label><input id="cCategory" list="catList" placeholder="e.g. Bail, Appeal, Suit, Family"><datalist id="catList"><option>Bail</option><option>Pre-arrest bail</option><option>Appeal</option><option>Revision</option><option>Writ / Constitutional</option><option>Civil Suit</option><option>Suit for recovery</option><option>Specific performance</option><option>Declaration / Injunction</option><option>Criminal Trial</option><option>Murder / Qatl</option><option>Narcotics (CNSA)</option><option>NAB / Corruption</option><option>Anti-Terrorism</option><option>Family — Khula/Divorce</option><option>Family — Maintenance</option><option>Family — Custody</option><option>Guardianship</option><option>Succession / Inheritance</option><option>Rent / Ejectment</option><option>Property / Revenue</option><option>Pre-emption (Shufa)</option><option>Banking / Recovery</option><option>Service / Labour</option><option>Tax / Customs</option><option>Intellectual Property</option><option>Cybercrime (PECA)</option><option>Defamation</option><option>Execution</option><option>Arbitration</option><option>Company / Corporate</option></datalist></div>
+      <div class="field"><label>Category</label><input id="cCategory" list="catList" placeholder="e.g. Bail, Appeal, Suit, Family"><datalist id="catList"><option>Bail</option><option>Pre-arrest bail</option><option>Appeal</option><option>Revision</option><option>Writ / Constitutional</option><option>Civil Suit</option><option>Suit for recovery</option><option>Specific performance</option><option>Declaration / Injunction</option><option>Criminal Trial</option><option>Murder / Qatl</option><option>Narcotics (CNSA)</option><option>NAB / Corruption</option><option>Anti-Terrorism</option><option>Family — Khula/Divorce</option><option>Family — Maintenance</option><option>Family — Custody</option><option>Guardianship</option><option>Succession / Inheritance</option><option>Rent / Ejectment</option><option>Property / Revenue</option><option>Pre-emption (Shufa)</option><option>Banking / Recovery</option><option>Service / Labour</option><option>Tax / Customs</option><option>Intellectual Property</option><option>Cybercrime (PECA)</option><option>Defamation</option><option>Execution</option><option>Arbitration</option><option>Company / Corporate</option><option>Constitutional Petition</option><option>Contempt of Court</option><option>Habeas Corpus</option><option>Quashing of FIR</option><option>Cheque Dishonour (NI Act)</option><option>Insurance</option><option>Consumer</option><option>Environmental</option><option>Immigration / Visa</option><option>Wills / Probate</option><option>Partnership Dispute</option><option>Land Acquisition</option><option>Defamation / Libel</option><option>Juvenile</option><option>Women / Domestic Violence</option><option>Cheque Recovery</option><option>Trademark / Copyright</option><option>Tax Appeal (ATIR)</option><option>Election Petition</option></datalist></div>
       <div class="field"><label>Case / FIR no.</label><input id="cNumber" placeholder="optional"></div>
     </div>
     <div class="grid2">
@@ -907,6 +939,7 @@ const PAY = {
   ]
 };
 const PLANS={ "1m":{label:"1 month",price:"₨250",days:30}, "6m":{label:"6 months",price:"₨1,000",days:182} };
+const SUPA={ url:"", key:"" }; // optional: paste your Supabase project URL + anon key to enable cloud sync for all users
 
 /* ===== helpers ===== */
 const $=id=>document.getElementById(id);
@@ -936,9 +969,29 @@ const DB={
   saveReqs(r){localStorage.setItem("wakalat.requests",JSON.stringify(r))},
   key(k){return"wakalat."+state.email+"."+k},
   get(k,def){try{const v=localStorage.getItem(DB.key(k));return v?JSON.parse(v):def}catch(e){return def}},
-  set(k,v){try{localStorage.setItem(DB.key(k),JSON.stringify(v));return true}catch(e){toast("Storage full — remove some attachments or back up & clear");return false}}
+  set(k,v){try{localStorage.setItem(DB.key(k),JSON.stringify(v));schedulePush();return true}catch(e){toast("Storage full — remove some attachments or back up & clear");return false}}
 };
 let state={email:null,profile:null,sub:null,mine:[],client:[],judge:[],reminders:[],personal:[],aikey:null,calMonth:new Date()};
+
+/* ===== cloud sync (optional Supabase) ===== */
+function supaCfg(){try{const c=JSON.parse(localStorage.getItem("wakalat.supa")||"null");if(c&&c.url&&c.key)return c;}catch(e){}return (SUPA.url&&SUPA.key)?SUPA:null;}
+function supaHeaders(c){return{apikey:c.key,Authorization:"Bearer "+c.key,"Content-Type":"application/json"};}
+function setSyncStatus(t){const e=$("supaStatus");if(e)e.textContent=t;}
+function cloudBlob(){return{profile:state.profile,sub:state.sub,mine:state.mine,client:state.client,judge:state.judge,reminders:state.reminders,personal:state.personal};}
+let _pushT;
+function schedulePush(){const c=supaCfg();if(!c||!state.email)return;clearTimeout(_pushT);_pushT=setTimeout(cloudPush,1500);}
+async function cloudPush(){const c=supaCfg();if(!c||!state.email)return false;try{
+  const u=DB.users()[state.email]||{};
+  const body=[{email:state.email,account:{name:u.name,phone:u.phone,pass:u.pass},data:cloudBlob(),updated_at:new Date().toISOString()}];
+  const r=await fetch(`${c.url}/rest/v1/vault?on_conflict=email`,{method:"POST",headers:{...supaHeaders(c),Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});
+  setSyncStatus(r.ok?("✓ Synced "+new Date().toLocaleTimeString()):("Sync failed ("+r.status+") — check setup"));return r.ok;
+}catch(e){setSyncStatus("Sync error (offline or wrong URL/key)");return false;}}
+async function cloudFetch(email){const c=supaCfg();if(!c||!email)return null;try{
+  const r=await fetch(`${c.url}/rest/v1/vault?email=eq.${encodeURIComponent(email)}&select=account,data`,{headers:supaHeaders(c)});
+  if(!r.ok)return null;const rows=await r.json();return rows[0]||null;
+}catch(e){return null;}}
+function applyData(d){if(!d)return;["profile","sub","mine","client","judge","reminders","personal"].forEach(k=>{if(d[k]!==undefined){state[k]=d[k];localStorage.setItem(DB.key(k),JSON.stringify(d[k]));}});}
+async function cloudPullApply(){const row=await cloudFetch(state.email);if(row&&row.data){applyData(row.data);if($("appShell")&&!$("appShell").classList.contains("hidden"))renderAll();return true;}return false;}
 
 /* ===== seal ===== */
 function sealSVG(withText){
@@ -963,10 +1016,19 @@ $("rgBtn").onclick=()=>{
   users[email]={name,email,phone,pass:hash32(pass+email),createdAt:todayISO()};
   DB.saveUsers(users);DB.setSession(email);state.email=email;
   localStorage.setItem(DB.key("profile"),JSON.stringify({fullName:name}));
+  cloudPush();
   toast("Welcome to PAK Lawyer's Notebook");route();
 };
-$("liBtn").onclick=()=>{
-  const u=findUserByLogin($("liEmail").value),pass=$("liPass").value;
+$("liBtn").onclick=async()=>{
+  const id=$("liEmail").value.trim().toLowerCase(),pass=$("liPass").value;
+  let u=findUserByLogin($("liEmail").value);
+  if(!u&&supaCfg()&&/@/.test(id)){
+    const row=await cloudFetch(id);
+    if(row&&row.account&&row.account.pass===hash32(pass+id)){
+      const users=DB.users();users[id]={name:row.account.name,email:id,phone:row.account.phone,pass:row.account.pass,createdAt:todayISO()};DB.saveUsers(users);
+      DB.setSession(id);state.email=id;applyData(row.data||{});toast("Welcome back — data loaded");route();return;
+    }
+  }
   if(!u||u.pass!==hash32(pass+u.email)){toast("Wrong email/phone or password");return;}
   DB.setSession(u.email);state.email=u.email;toast("Welcome back");route();
 };
@@ -1049,7 +1111,11 @@ function enterApp(){
   $("pCatList").innerHTML=PERSONAL_CATS.map(c=>`<option>${c}</option>`).join("");
   $("personalFilter").innerHTML=`<option value="ALL">All categories</option>`+PERSONAL_CATS.map(c=>`<option>${c}</option>`).join("");
   $("aiAskHint").textContent=state.aikey?"AI ready — ask anything about your matters.":"Needs your Gemini key (🔑 top-right).";
+  const sc=(()=>{try{return JSON.parse(localStorage.getItem("wakalat.supa")||"null")}catch(e){return null}})();
+  if($("supaUrl")){$("supaUrl").value=sc?.url||"";$("supaKey").value=sc?.key||"";}
+  setSyncStatus(supaCfg()?"Cloud sync ON":"Cloud sync off (local only)");
   renderAll();
+  if(supaCfg()&&!sessionStorage.getItem("pulled")){sessionStorage.setItem("pulled","1");cloudPullApply().then(ok=>{if(ok)toast("Loaded your latest data from cloud");});}
 }
 function renderAll(){renderAlerts();renderCases("mine");renderCases("client");renderJudge();renderCalendar();renderSettings();}
 const VIEWS=["vAlerts","vMine","vClient","vJudge","vPersonal","vAI","vSearch","vCal","vNews","vLive","vLearn","vMedia","vHelp","vPolicy","vSettings"];
@@ -1542,7 +1608,7 @@ $("waBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const msg=`Assal
 $("emailReqBtn").onclick=()=>{logRequest();const pl=PLANS[chosenPlan];const sub="PAK Lawyer's Notebook subscription request";const body=`Name: ${state.profile?.fullName||""}\nEmail: ${state.email}\nReference: ${refCode()}\nPlan: ${pl.label} (${pl.price})\n\nI have paid / will pay and attach the receipt.`;window.open(`mailto:${PAY.EMAIL}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);};
 $("unlockBtn").onclick=()=>{const res=verifyUnlock($("unlockInput").value,refCode());if(!res.ok){toast(res.msg);return;}state.sub={plan:res.plan,activatedAt:todayISO(),expiresAt:res.expiresAt};DB.set("sub",state.sub);$("subOverlay").classList.remove("on");$("trialBanner").classList.add("hidden");renderSettings();toast("Unlocked — you can save now");};
 
-function signOut(){DB.setSession(null);state.email=null;["liEmail","liPass","rgName","rgEmail","rgPhone","rgPass"].forEach(i=>{if($(i))$(i).value="";});route();toast("Signed out");}
+function signOut(){sessionStorage.removeItem("pulled");DB.setSession(null);state.email=null;["liEmail","liPass","rgName","rgEmail","rgPhone","rgPass"].forEach(i=>{if($(i))$(i).value="";});route();toast("Signed out");}
 
 /* ============ NEW FEATURES ============ */
 async function geminiCall(prompt,jsonMode){
@@ -1618,7 +1684,7 @@ $("aiRun").onclick=async()=>{
 };
 
 /* ===== PERSONAL / MY LIFE ===== */
-const PERSONAL_CATS=["Court / law activity","Meeting","Seminar / CPD (attended)","Seminar / lecture (conducted)","Discussion / debate","Trip / picnic","Session / workshop","Event / incident","Future planning","Target / goal","Personal growth","Health","Exercise / fitness","Hobby / leisure","Currently reading","Book","Family / children","Friends","Vehicle / car","Home / garden","Finance","Idea / note","Other"];
+const PERSONAL_CATS=["Court / law activity","Client meeting","Office meeting","Networking","Seminar / CPD (attended)","Seminar / lecture (conducted)","Conference","Webinar / online course","Bar association activity","Pro bono / legal aid","Discussion / debate","Moot / competition","Trip / picnic","Session / workshop","Event / incident","Future planning","Target / goal","Personal growth","Skill / certification","Health","Mental wellbeing","Exercise / fitness","Diet / nutrition","Sleep","Hobby / leisure","Travel","Currently reading","Book","Article / paper","Podcast","Family / children","Friends","Mentor / mentee","Vehicle / car","Home / garden","Plant / flower","Pet","Finance / budget","Investment","Gadget / device","Idea / note","Journal / reflection","Gratitude","Other"];
 let personalUploads=[];
 function renderPersonalUploads(){
   $("pUploads").innerHTML=personalUploads.map((f,i)=>`<span class="file-chip">${f.type&&f.type.includes('pdf')?'📄':f.type&&f.type.startsWith('video')?'🎬':f.type&&f.type.startsWith('audio')?'🎧':'🖼'} ${esc(f.name)} <button data-rmp="${i}" style="border:none;background:none;color:var(--red);cursor:pointer">✕</button></span>`).join("");
@@ -1706,6 +1772,13 @@ const POLICIES=[
  ["Contact","TrendCatcher — Email: "+PAY.EMAIL+" · WhatsApp: "+PAY.WHATSAPP+". For support, payment verification or policy questions, contact us any time."],
 ];
 function renderPolicy(){$("policyWrap").innerHTML=`<div class="info-card">These policies are provided by <b>TrendCatcher</b>, the publisher of PAK Lawyer's Notebook.</div>`+POLICIES.map(pl=>`<details class="help" style="margin-bottom:8px"><summary>${esc(pl[0])}</summary><div style="margin-top:8px;line-height:1.6">${esc(pl[1])}</div></details>`).join("");}
+
+/* cloud sync settings handlers */
+$("supaSave").onclick=()=>{const url=$("supaUrl").value.trim().replace(/\/$/,"");const key=$("supaKey").value.trim();if(!url||!key){toast("Enter both URL and key");return;}localStorage.setItem("wakalat.supa",JSON.stringify({url,key}));setSyncStatus("Connecting…");cloudPush().then(ok=>toast(ok?"Connected & synced":"Saved — but sync failed, check setup"));};
+$("supaUp").onclick=()=>{if(!supaCfg()){toast("Connect first");return;}setSyncStatus("Syncing up…");cloudPush();};
+$("supaDown").onclick=async()=>{if(!supaCfg()){toast("Connect first");return;}setSyncStatus("Syncing down…");const ok=await cloudPullApply();toast(ok?"Latest data loaded":"Nothing found in cloud yet");};
+$("supaOff").onclick=()=>{localStorage.removeItem("wakalat.supa");$("supaUrl").value="";$("supaKey").value="";setSyncStatus(supaCfg()?"Using built-in cloud":"Cloud sync off (local only)");toast("Disconnected");};
+$("signoutBtn")&&null;
 
 /* boot */
 (function init(){const t=localStorage.getItem("wakalat.theme");if(t)document.documentElement.setAttribute("data-theme",t);route();setTimeout(fireReminders,1500);})();
