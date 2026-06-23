@@ -2183,5 +2183,169 @@ ${txt.slice(0,15000)}`;
   const firRun=document.getElementById("firRun");
 })();
 </script>
+  <script>
+/* ===== FIR Analyzer v2 — classify, generate fields, charts, create+link ===== */
+(function(){
+  const sec=document.getElementById("vFir"); if(!sec) return;
+  let lastSrc="", lastResult=null;
+
+  const css=document.createElement("style");
+  css.textContent=`
+  #vFir .fa-pick{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  #vFir .fa-pick button{flex:1;min-width:130px;border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:12px;font-weight:700;font-size:13px;color:var(--ink-soft);cursor:pointer;transition:.15s}
+  #vFir .fa-pick button:hover{border-color:var(--green);color:var(--green-deep);background:var(--green-tint)}
+  #vFir .fa-pick button.on{background:linear-gradient(95deg,var(--green),var(--teal));color:#fff;border-color:transparent}
+  .fa-card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+  .fa-card h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-faint);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .fa-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .fa-f label{display:block;font-size:11px;font-weight:700;color:var(--ink-faint);margin-bottom:3px}
+  .fa-f input,.fa-f textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);font-size:13px}
+  .fa-bars{display:grid;gap:9px}
+  .fa-b{display:flex;align-items:center;gap:10px}.fa-b .l{flex:none;width:150px;font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  .fa-b .t{flex:1;height:12px;border-radius:6px;background:var(--sand);overflow:hidden}.fa-b .t>i{display:block;height:100%;border-radius:6px;transition:width .5s}
+  .fa-b .v{flex:none;width:42px;text-align:right;font-weight:700;font-size:12.5px;font-family:'Spline Sans Mono',monospace}
+  .fa-flagcard{border-left:4px solid var(--brass);border-radius:var(--r-sm);background:var(--paper);padding:11px 13px;margin-bottom:8px}
+  .fa-flagcard.g{border-left-color:#1f9d55}.fa-flagcard.r{border-left-color:var(--red)}.fa-flagcard.y{border-left-color:var(--brass)}
+  .fa-flagcard .ft{font-weight:700;font-size:13px}.fa-flagcard .fn{font-size:12px;color:var(--ink-soft);margin-top:3px}
+  .fa-verify{font-size:10.5px;font-weight:700;color:var(--brass);border:1px solid var(--brass);border-radius:20px;padding:1px 8px;margin-left:6px}
+  `;
+  document.head.appendChild(css);
+
+  // rebuild the FIR view body
+  sec.innerHTML=`
+  <div class="page-head"><div><h2>FIR / pre-hearing analysis</h2><div class="sub">Pick what you're building, paste or extract the document, then let AI scan it, score it, and generate the fields & cards — saved and linked.</div></div></div>
+  <div class="panel" style="max-width:none">
+    <label style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">What do you want to create from this document?</label>
+    <div class="fa-pick" id="faPick">
+      <button data-t="client" class="on">👤 Client case</button>
+      <button data-t="mine">📁 My case</button>
+      <button data-t="judge">📜 Judgment</button>
+      <button data-t="personal">🗂 Personal record</button>
+    </div>
+    <div class="field" style="margin:0"><label>Document text</label><textarea id="faSrc" style="min-height:120px" placeholder="Paste FIR / charge sheet / order / notice text…"></textarea></div>
+    <div style="margin-top:8px"><input id="faFile" type="file" accept="application/pdf,image/*,.docx"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn sm" id="faExtract" type="button">📄 Extract text</button>
+      <button class="btn primary" id="faRun" type="button">🩺 Analyse &amp; generate</button>
+    </div>
+    <div class="hint" id="faHint" style="margin-top:8px">Needs your Gemini key (🔑).</div>
+    <div id="faOut" style="margin-top:16px"></div>
+  </div>`;
+
+  let target="client";
+  const pick=document.getElementById("faPick");
+  pick.querySelectorAll("button").forEach(b=>b.onclick=()=>{target=b.dataset.t;pick.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));});
+
+  const clamp=p=>Math.max(0,Math.min(100,parseInt(p)||0));
+  const barCol=p=>p>=70?"linear-gradient(90deg,#1f9d55,#2fb86a)":p>=40?"linear-gradient(90deg,var(--brass),var(--brass-soft))":"linear-gradient(90deg,var(--red),#c8503f)";
+  const flagCls=s=>{s=String(s||"").toLowerCase();if(/(yes|consistent|reasonable|present|strong|competent|registrable|cognizable|ok|met|ready|within)/.test(s))return"g";if(/(no|missing|weak|conflict|unexplained|suspicious|contradict|barred|delay|insufficient|absent|not )/.test(s))return"r";return"y";};
+  const bar=(l,p)=>{p=clamp(p);return `<div class="fa-b"><span class="l">${esc(l)}</span><div class="t"><i style="width:${p}%;background:${barCol(p)}"></i></div><span class="v">${p}%</span></div>`;};
+  const flag=(t,status,note,verify)=>`<div class="fa-flagcard ${flagCls(status)}"><div class="ft">${esc(t)}: ${esc(status||"—")}${verify?'<span class="fa-verify">verify</span>':''}</div>${note?`<div class="fn">${esc(note)}</div>`:""}</div>`;
+
+  // dynamic editable fields generated from AI
+  function fieldsCard(fields){
+    if(!fields||!fields.length)return"";
+    const rows=fields.map((f,i)=>`<div class="fa-f"><label>${esc(f.label||"Field")}</label><input data-fi="${i}" value="${esc(f.value||"")}"></div>`).join("");
+    return `<div class="fa-card"><h4>📝 Generated fields <span style="font-weight:400;text-transform:none;color:var(--ink-faint)">— edit before saving</span></h4><div class="fa-fields" id="faFields">${rows}</div></div>`;
+  }
+
+  function render(a){
+    lastResult=a;
+    const b=a.bars||{};
+    const charts=`<div class="fa-card"><h4>📊 Document strength &amp; weakness</h4><div class="fa-bars">
+      ${bar("Overall health",b.health!=null?b.health:a.healthScore)}
+      ${bar("Strength",b.strength)}
+      ${bar("Evidence",b.evidence)}
+      ${bar("Investigation",b.investigation)}
+      ${bar("Weakness (risk)",b.weakness)}
+    </div></div>`;
+    const dyn=(a.dynamicCards||[]).map(c=>`<div class="fa-card"><h4>${esc(c.icon||"📌")} ${esc(c.title||"")}</h4>${(c.items||[]).map(it=>flag(it.label||"",it.status,it.note,it.verify)).join("")||`<div class="fn">${esc(c.note||"")}</div>`}</div>`).join("");
+    const checks=`<div class="fa-card"><h4>🩺 Logical checks</h4>
+      ${a.incidentDate?flag("Incident occurred",a.incidentDate,a.firDate?("FIR registered: "+a.firDate):"" ):""}
+      ${a.delay?flag("Reporting delay",a.delay.status,a.delay.note):""}
+      ${a.distance?flag("Place ↔ police station",a.distance.status,a.distance.note,true):""}
+      ${a.jurisdiction?flag("Jurisdiction",a.jurisdiction.status,a.jurisdiction.note):""}
+      ${a.timeline?flag("Timeline consistency",a.timeline.status,a.timeline.note):""}
+    </div>`;
+    const weak=(a.weaknesses||[]).length?`<div class="fa-card"><h4>⚠️ Weaknesses &amp; fixes</h4>${a.weaknesses.map(w=>`<div class="weak-card ${String(w.severity||"").toLowerCase().startsWith("low")?"sev-low":String(w.severity||"").toLowerCase().startsWith("med")?"sev-med":""}"><div class="wi">${esc(w.issue||"")}<span class="wsev">${esc(w.severity||"high")}</span></div>${w.fix?`<div class="wf">↳ ${esc(w.fix)}</div>`:""}</div>`).join("")}</div>`:"";
+    const verdict=a.hearingReadiness?`<div class="fa-card" style="border-left:4px solid var(--teal)"><h4>⚖︎ Hearing readiness</h4><div class="ft" style="font-weight:700;font-size:15px">${esc(a.hearingReadiness.verdict||"—")} (${clamp(a.hearingReadiness.score)}%)</div><div class="fn">${esc(a.hearingReadiness.note||"")}</div></div>`:"";
+    document.getElementById("faOut").innerHTML=
+      `<div class="fa-card" style="background:linear-gradient(110deg,var(--green-deep),var(--teal));color:#F2EEE3;border:none"><h4 style="color:rgba(255,255,255,.85)">Detected: ${esc(a.documentType||"document")}</h4><div style="font-size:13.5px">${esc(a.summary||"")}</div></div>`+
+      charts+checks+dyn+weak+fieldsCard(a.generatedFields)+verdict+
+      `<div class="la-rec" style="margin-top:6px"><button class="btn primary" id="faCreate">＋ Create ${target==="judge"?"Judgment":target==="personal"?"Personal record":target==="mine"?"My case":"Client case"} with these fields</button><button class="btn" id="faReset">Start over</button></div>
+       <div class="hint" style="display:block;margin-top:10px">AI assessment, incl. distance/jurisdiction — verify against the FIR, statute, map and primary record before relying on it.</div>`;
+    document.getElementById("faCreate").onclick=create;
+    document.getElementById("faReset").onclick=()=>{document.getElementById("faOut").innerHTML="";document.getElementById("faSrc").value="";window.scrollTo(0,0);};
+  }
+
+  // read edited field values back
+  function collect(){
+    const out={};(lastResult.generatedFields||[]).forEach((f,i)=>{const el=document.querySelector(`[data-fi="${i}"]`);out[f.key||f.label]=el?el.value:f.value;});
+    return out;
+  }
+  // push generated fields into the real record modal
+  function create(){
+    const fv=collect();const pickField=(...k)=>{for(const n of k){for(const key in fv){if(key.toLowerCase().replace(/[^a-z]/g,"").includes(n))return fv[key];}}return"";};
+    if(target==="judge"){ if(typeof openJudge!=="function"){toast("Open a judgment manually");return;} go("vJudge");openJudge(null);
+      setTimeout(()=>{const s=v=>v;document.getElementById("jSource").value=lastSrc;
+        const set=(id,val)=>{const e=document.getElementById(id);if(e&&val)e.value=val;};
+        set("jCite",pickField("citation","cite"));set("jName",pickField("casename","parties","title"));set("jCourt",pickField("court"));set("jHold",pickField("holding","ratio"));set("jSummary",pickField("summary","facts"));toast("Fields filled — review & save");},120);
+      return;
+    }
+    if(target==="personal"){ if(typeof openPersonal!=="function")return; go("vPersonal");openPersonal(null);
+      setTimeout(()=>{const set=(id,val)=>{const e=document.getElementById(id);if(e&&val)e.value=val;};set("pTitle",pickField("title","subject"));set("pNotes",pickField("notes","summary","details"));document.getElementById("pAiSrc").value=lastSrc;toast("Filled — review & save");},120);
+      return;
+    }
+    if(typeof openCase!=="function"){toast("Open a case manually");return;}
+    const kind=target==="mine"?"mine":"client";go(kind==="mine"?"vMine":"vClient");openCase(kind,null);
+    setTimeout(()=>{
+      const set=(id,val)=>{const e=document.getElementById(id);if(e&&val)e.value=val;};
+      set("cTitle",pickField("title","casetitle","caption"));
+      set("cNumber",pickField("firno","caseno","number"));
+      set("cCourt",pickField("court"));
+      set("cCategory",pickField("category","nature","offence"));
+      set("cParty",pickField("accused","opposing","respondent"));
+      set("cClient",pickField("complainant","client","petitioner"));
+      set("cNotes",pickField("summary","facts","notes")||lastSrc.slice(0,800));
+      const ai=document.getElementById("cAiSrc");if(ai)ai.value=lastSrc;
+      toast("Case fields generated — review & save (Save needs an active plan)");
+    },120);
+  }
+
+  async function run(){
+    if(!state.aikey){toast("Add your Gemini key (🔑)");return;}
+    const txt=(document.getElementById("faSrc").value||"").trim();
+    if(txt.length<15){toast("Paste or extract document text first");return;}
+    lastSrc=txt;
+    document.getElementById("faOut").innerHTML=`<div class="la-loading"><span class="la-spin"></span> Scanning, analysing & generating fields…</div>`;
+    const labelMap={client:"a Client Case",mine:"My own Case",judge:"a Judgment",personal:"a Personal record"};
+    const prompt=`You are a senior Pakistani advocate. Scan the document and produce a PRE-HEARING analysis AND generate the data fields needed to create ${labelMap[target]}. Return ONLY valid JSON, no markdown. Use "" / [] when unknown — NEVER invent facts; for any estimate (e.g. distance) set verify=true and explain it is unverified.
+{
+ "documentType":"",
+ "summary":"one sentence",
+ "healthScore":<0-100>,
+ "bars":{"health":<0-100>,"strength":<0-100>,"weakness":<0-100>,"evidence":<0-100>,"investigation":<0-100>},
+ "incidentDate":"date/time of occurrence as stated or ''",
+ "firDate":"FIR registration date/time or ''",
+ "delay":{"status":"Reasonable|Review required|Unexplained","note":""},
+ "distance":{"status":"Plausible|Insufficient info|Questionable","note":"compare incident place vs police station; you may ESTIMATE but flag as unverified","verify":true},
+ "jurisdiction":{"status":"Consistent|Insufficient info|Potential conflict","note":""},
+ "timeline":{"status":"Consistent|Requires review|Significant inconsistency","note":""},
+ "dynamicCards":[{"icon":"📌","title":"any extra theme you find (parties, sections cited, recoveries, witnesses...)","items":[{"label":"","status":"","note":"","verify":false}]}],
+ "weaknesses":[{"issue":"","severity":"high|medium|low","fix":""}],
+ "generatedFields":[{"key":"title|firNo|court|category|accused|complainant|summary|citation|holding...","label":"human label","value":"extracted value"}],
+ "hearingReadiness":{"score":<0-100>,"verdict":"Ready|Needs work|Not ready","note":""}
+}
+DOCUMENT:
+${txt.slice(0,15000)}`;
+    try{const a=parseJSON(await geminiCall(prompt,true));render(a);toast("Generated — review the cards & fields");}
+    catch(e){document.getElementById("faOut").innerHTML=`<div class="info-card">AI error: ${esc(e.message=="no-key"?"add your key":e.message)}</div>`;}
+  }
+
+  document.getElementById("faRun").onclick=async function(){this.disabled=true;const o=this.textContent;this.textContent="Analysing…";await run();this.disabled=false;this.textContent=o;};
+  document.getElementById("faExtract").onclick=async function(){const f=document.getElementById("faFile").files[0];if(!f){toast("Choose a file");return;}this.disabled=true;const o=this.textContent;this.textContent="Extracting…";try{const t=await extractFileText(f,s=>this.textContent=s);if(t){const cur=document.getElementById("faSrc").value.trim();document.getElementById("faSrc").value=cur?cur+"\n\n"+t:t;toast("Text extracted");}else toast("No text found");}catch(e){toast("Extract failed");}this.disabled=false;this.textContent=o;};
+  if(state.aikey)document.getElementById("faHint").textContent="AI ready — pick a type, paste/extract, then Analyse & generate.";
+})();
+</script>
 </body>
 </html>
