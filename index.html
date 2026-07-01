@@ -290,6 +290,32 @@ textarea.in{min-height:90px;resize:vertical;line-height:1.55;font-family:inherit
   .master-stats{grid-template-columns:repeat(2,1fr)}
   .mstat:nth-child(3){border-left:none}
 }
+/* field action icons + empty state */
+.fl-head{display:flex;align-items:center;gap:6px}
+.fl-head label{display:flex;align-items:center;gap:6px;margin:0;flex:1;min-width:0}
+.fl-actions{display:flex;gap:3px;flex:none}
+.fl-ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted-2);transition:.15s;flex:none;border:1px solid transparent}
+.fl-ic svg{width:13px;height:13px;stroke-width:1.9}
+.fl-ic:hover{background:var(--bone);color:var(--garnet);border-color:var(--line)}
+.fl-ic.fl-wa:hover{background:#e6f6ec;color:#1faa55;border-color:#bfe6cd}
+.fl-ic.pulse{color:var(--brass);animation:fpulse 1.8s infinite}
+@keyframes fpulse{0%,100%{opacity:.45}50%{opacity:1}}
+.field.empty-field input,.field.empty-field textarea{border-style:dashed;background:repeating-linear-gradient(-45deg,var(--parchment),var(--parchment) 9px,#f6f1e6 9px,#f6f1e6 18px)}
+/* record bar */
+.rec-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:10px 12px;background:var(--parchment);border:1px solid var(--line);border-radius:var(--r-sm)}
+.rec-bar .rl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rec-bar select{flex:1;min-width:150px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-xs);background:var(--card);font-size:13px;color:var(--txt)}
+.rec-bar .rb{padding:8px 11px;border-radius:var(--r-xs);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--txt-2)}
+.rec-bar .rb svg{width:13px;height:13px;stroke-width:2}
+.rec-bar .rb.new{background:var(--garnet);color:#fff;border-color:var(--garnet)}
+.rec-bar .rb.new:hover{background:var(--garnet-2)}
+.rec-bar .rb.del:hover{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+/* top action bar */
+.actionbar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:13px}
+.act-card{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 6px;border-radius:var(--r-sm);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:var(--txt-inv);font-size:11.5px;font-weight:600;line-height:1.15;text-align:center;transition:.15s}
+.act-card:hover{background:rgba(191,156,69,.18);border-color:var(--brass);transform:translateY(-1px)}
+.act-card svg{width:19px;height:19px;stroke-width:1.7;color:var(--brass-2)}
+@media(max-width:880px){.actionbar{grid-template-columns:repeat(3,1fr)}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -898,15 +924,25 @@ const profileMap = p => ({
   "Full name":p.name, "Designation":p.role, "Department":p.dept,
   "Faculty / institution":p.inst, "Specialization":p.spec
 });
-const vKey = (sec,lbl) => "lf.v." + sec + "." + slug(lbl);
-function getVal(field, secId){
-  const stored = LS.get(vKey(secId, field.l));
-  if(stored !== null) return stored;
-  if(secId === "profile" && prof){ const pm = profileMap(prof); if(pm[field.l] != null && pm[field.l] !== "") return pm[field.l]; }
-  return field.v;
-}
-function setVal(secId, label, value){ return LS.set(vKey(secId, slugLabel(secId,label)), value); }
-function slugLabel(secId,label){ return label; } // label passed straight to vKey
+/* ---- multi-record store (each section holds many records) ---- */
+function loadRecs(sec){ let a; try{ a=JSON.parse(LS.get("lf.recs."+sec)||"null"); }catch(e){}
+  if(!a||!a.length){ a=[{id:"seed"}]; LS.set("lf.recs."+sec, JSON.stringify(a)); } return a; }
+function saveRecs(sec,a){ LS.set("lf.recs."+sec, JSON.stringify(a)); }
+function curRecId(sec){ const a=loadRecs(sec); let id=LS.get("lf.cur."+sec); if(!id||!a.find(r=>r.id===id)) id=a[0].id; return id; }
+function setCurRec(sec,id){ LS.set("lf.cur."+sec,id); }
+function newRecord(sec){ const a=loadRecs(sec); const id="r"+Date.now().toString(36)+Math.floor(Math.random()*999); a.push({id}); saveRecs(sec,a); setCurRec(sec,id); return id; }
+function deleteRecord(sec,id){ if(id==="seed") return; const S=SECTIONS.find(s=>s.id===sec);
+  S.fields.forEach(f=> LS.del("lf.v."+sec+"."+id+"."+slug(f.l)));
+  const a=loadRecs(sec).filter(r=>r.id!==id); saveRecs(sec,a); setCurRec(sec,a[0].id); }
+const vKey = (sec,lbl) => "lf.v." + sec + "." + curRecId(sec) + "." + slug(lbl);
+function recValFallback(sec,recId,field){ const s=LS.get("lf.v."+sec+"."+recId+"."+slug(field.l));
+  if(s!==null) return s;
+  if(recId==="seed"){ if(sec==="profile"&&prof){ const pm=profileMap(prof); if(pm[field.l]!=null&&pm[field.l]!=="") return pm[field.l]; } return field.v; }
+  return ""; }
+function getVal(field, secId){ return recValFallback(secId, curRecId(secId), field); }
+function setVal(secId, label, value){ return LS.set(vKey(secId, label), value); }
+function recTitle(sec,recId){ const S=SECTIONS.find(s=>s.id===sec); return recValFallback(sec,recId,S.fields[0])||"Untitled"; }
+function subjectField(sec){ const S=SECTIONS.find(s=>s.id===sec); return S.fields.find(f=>/course|subject|programme|project|plan title|activity title/i.test(f.l))||S.fields[0]; }
 
 /* ============ MASTER / IDENTITY ============ */
 function statsHTML(p, cls){
@@ -999,13 +1035,34 @@ function svgGauge(pct,label){
 
 /* ============ PANEL & FIELDS ============ */
 function fileMeta(secId,label){ try{ return JSON.parse(LS.get(vKey(secId,label))||"null"); }catch(e){ return null; } }
+const SPARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4L18 8.6l-4 1.6L12 15l-1.6-4.8L6 8.6l4.4-1.6z"/></svg>';
+const WAICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.5 9c.2 2 1.5 3.8 3.4 4.8"/></svg>';
+function waShare(label,value){ window.open("https://wa.me/?text="+encodeURIComponent(label+":\n"+(value||"")),"_blank","noopener"); }
+async function aiFillField(secId,field,ctrl,wrap,aiBtn){
+  const prov=activeProvider(), key=providerKey(prov.id);
+  if(!key){ toast("Add an AI provider key (gear) to fill fields with AI"); openSettings(); return; }
+  const sec=SECTIONS.find(s=>s.id===secId);
+  const ctx=sec.fields.filter(f=>f.l!==field.l&&f.t!=="upload").map(f=>[f.l,getVal(f,secId)]).filter(x=>x[1]).slice(0,10).map(x=>x[0]+": "+x[1]).join("\n");
+  const opt=field.t==="select"?(" Choose exactly one of: "+(field.o||[]).join(" | ")+"."):"";
+  const prompt="For a "+sec.name+" record in a law programme at the University of Turbat, write a concise, realistic value for the field \""+field.l+"\"."+opt+"\nOther fields in this record:\n"+(ctx||"(none yet)")+"\n\nReturn ONLY the value text — no label, no quotes, no preamble.";
+  if(aiBtn){ aiBtn.classList.remove("pulse"); aiBtn.innerHTML='<span class="spin" style="width:12px;height:12px;border-width:2px;border-color:rgba(142,47,61,.3);border-top-color:var(--garnet)"></span>'; }
+  try{ let v=((await runProvider(prov,key,SYS,prompt))||"").trim().replace(/^["']|["']$/g,"");
+    if(field.t!=="textarea") v=v.split("\n")[0].trim();
+    if(field.t==="select"&&field.o&&!field.o.includes(v)){ v=field.o.find(o=>v.toLowerCase().includes(o.toLowerCase())||o.toLowerCase().includes(v.toLowerCase()))||field.o[0]; }
+    ctrl.value=v; LS.set(vKey(secId,field.l),v); if(wrap) wrap.classList.remove("empty-field"); toast("Filled by AI"); }
+  catch(e){ toast(prov.name+": "+(e.message||e)); }
+  finally{ if(aiBtn) aiBtn.innerHTML=SPARK; }
+}
 function makeField(field, secId){
   const wrap = document.createElement("div");
   const isWide = field.t==="textarea" || field.t==="upload" || field.w;
   wrap.className = "field" + (isWide ? " wide" : "");
-  const lab = document.createElement("label");
-  const dot = document.createElement("span"); dot.className="saved-dot";
-  lab.textContent = field.l + " "; lab.appendChild(dot); wrap.appendChild(lab);
+  const canAI = field.t!=="upload";
+  const head = document.createElement("div"); head.className="fl-head";
+  head.innerHTML = `<label><span>${esc(field.l)}</span> <span class="saved-dot"></span></label>
+    <span class="fl-actions">${canAI?`<button class="fl-ic fl-ai" title="Fill this field with AI">${SPARK}</button>`:""}<button class="fl-ic fl-wa" title="Share on WhatsApp">${WAICON}</button></span>`;
+  wrap.appendChild(head);
+  const dot = head.querySelector(".saved-dot");
 
   if(field.t === "upload"){
     const zone = document.createElement("div"); zone.className="upload";
@@ -1022,6 +1079,7 @@ function makeField(field, secId){
       pv.querySelector(".ux").addEventListener("click", ()=>{ LS.del(vKey(secId, field.l)); renderPanel(); });
       wrap.appendChild(pv);
     }
+    head.querySelector(".fl-wa").addEventListener("click", ()=>{ const m=fileMeta(secId,field.l); waShare(field.l, m?("[file] "+m.name):"(no file attached)"); });
     return wrap;
   }
 
@@ -1029,10 +1087,15 @@ function makeField(field, secId){
   if(field.t === "textarea"){ ctrl = document.createElement("textarea"); }
   else if(field.t === "select"){ ctrl = document.createElement("select"); (field.o||[]).forEach(o=>{ const op=document.createElement("option"); op.value=o; op.textContent=o; ctrl.appendChild(op); }); }
   else { ctrl = document.createElement("input"); ctrl.type = field.t || "text"; }
-  ctrl.value = getVal(field, secId);
+  const v0 = getVal(field, secId); ctrl.value = v0;
+  if(!v0 && field.t!=="select"){ wrap.classList.add("empty-field"); const a=head.querySelector(".fl-ai"); if(a) a.classList.add("pulse"); }
   ctrl.addEventListener("input", ()=>{ LS.set(vKey(secId, field.l), ctrl.value);
+    if(field.t!=="select"){ wrap.classList.toggle("empty-field", !ctrl.value); const a=head.querySelector(".fl-ai"); if(a) a.classList.toggle("pulse", !ctrl.value); }
     dot.classList.add("on"); clearTimeout(ctrl._t); ctrl._t=setTimeout(()=>dot.classList.remove("on"),1100); });
-  wrap.appendChild(ctrl); return wrap;
+  wrap.appendChild(ctrl);
+  head.querySelector(".fl-wa").addEventListener("click", ()=> waShare(field.l, ctrl.value));
+  const aiBtn=head.querySelector(".fl-ai"); if(aiBtn) aiBtn.addEventListener("click", ()=> aiFillField(secId, field, ctrl, wrap, aiBtn));
+  return wrap;
 }
 
 function renderPanel(){
@@ -1040,11 +1103,13 @@ function renderPanel(){
   let extra = "";
   if(sec.id==="syllabus") extra = `<button class="btn btn-brass" id="libBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Load from library</button>`;
   if(sec.id==="assignments") extra = `<button class="btn btn-brass" id="gradeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Grade submission</button>`;
+  const recs=loadRecs(sec.id), cur=curRecId(sec.id);
+  const opts=recs.map(r=>`<option value="${r.id}" ${r.id===cur?"selected":""}>${esc(recTitle(sec.id,r.id))}${r.id==="seed"?" · sample":""}</option>`).join("");
   document.getElementById("panelMount").innerHTML = `
     <div class="panel">
       <div class="panel-head">
         <div>
-          <div class="panel-eyebrow">${sec.group==="top"?"Primary record":"Faculty record"} · ${sec.fields.length} fields</div>
+          <div class="panel-eyebrow">${sec.group==="top"?"Primary record":"Faculty record"} · ${sec.fields.length} fields · ${recs.length} record${recs.length>1?"s":""}</div>
           <div class="panel-title">${sec.name}</div>
           <div class="panel-desc">${sec.desc}</div>
         </div>
@@ -1054,15 +1119,24 @@ function renderPanel(){
           <button class="btn btn-ai" id="assistBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/></svg> AI Assist</button>
         </div>
       </div>
+      <div class="rec-bar">
+        <span class="rl">Record</span>
+        <select id="recSel">${opts}</select>
+        <button class="rb new" id="recNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> New ${esc(sec.name)}</button>
+        ${cur!=="seed"?`<button class="rb del" id="recDel" title="Delete this record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>`:""}
+      </div>
       <div class="grid" id="gridMount"></div>
     </div>`;
   const grid = document.getElementById("gridMount");
   sec.fields.forEach(f=> grid.appendChild(makeField(f, sec.id)));
   document.getElementById("assistBtn").addEventListener("click", ()=> openAI(sec.id));
   document.getElementById("resetBtn").addEventListener("click", ()=>{
-    sec.fields.forEach(f=> LS.del(vKey(sec.id, f.l))); renderPanel(); toast("Card reset to sample"); });
+    sec.fields.forEach(f=> LS.del(vKey(sec.id, f.l))); renderPanel(); toast("Record reset"); });
   if(document.getElementById("libBtn")) document.getElementById("libBtn").addEventListener("click", openLibrary);
   if(document.getElementById("gradeBtn")) document.getElementById("gradeBtn").addEventListener("click", ()=> gradeSubmission(true));
+  document.getElementById("recSel").addEventListener("change", e=>{ setCurRec(sec.id, e.target.value); renderPanel(); });
+  document.getElementById("recNew").addEventListener("click", ()=>{ newRecord(sec.id); renderPanel(); toast("New "+sec.name+" record — fill it in, or use the ✦ icon on each field"); });
+  if(document.getElementById("recDel")) document.getElementById("recDel").addEventListener("click", ()=>{ deleteRecord(sec.id, curRecId(sec.id)); renderPanel(); toast("Record deleted"); });
 }
 function setActive(id){ activeId=id; renderPanel(); refreshNavStates();
   const ms=document.querySelector(".main-scroll"); if(ms) ms.scrollIntoView({behavior:"smooth",block:"start"}); }
@@ -1204,9 +1278,9 @@ function openLibrary(){
   const body=document.getElementById("aiBody"); body.innerHTML=html;
   body.querySelectorAll(".sresult").forEach(el=> el.addEventListener("click", ()=>{
     const u=SYLLABUS_LIB[+el.dataset.u], c=u.courses[+el.dataset.c];
-    writeToCard("syllabus", applySyllabus(u,c));
-    if(activeId==="syllabus") renderPanel(); else setActive("syllabus");
-    closeDrawer("ai"); toast("Syllabus loaded: "+c.title);
+    newRecord("syllabus"); writeToCard("syllabus", applySyllabus(u,c));
+    setActive("syllabus");
+    closeDrawer("ai"); toast("New syllabus record: "+c.title);
   }));
   document.getElementById("aiRun").style.display="none";
   document.getElementById("aiClear").style.display="none";
@@ -1274,12 +1348,19 @@ async function aiRunMode(){
 }
 
 /* ============ AI PROFESSOR COMMAND CENTER ============ */
-const CHIPS=[["lesson","lesson","Lesson plan"],["assign","assignment","Assignment"],["syllabus","syllabus","Build syllabus"],["assign","grade","Grade"],["research","analyse","Analyse card"],["search","search","Search"],["site","sites","Sites"]];
-function renderChips(){
-  const extra={search:'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>', site:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'};
-  document.getElementById("profChips").innerHTML=CHIPS.map(([ic,act,label])=>
-    `<button class="chip" data-act="${act}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[ic]||extra[ic]||""}</svg>${label}</button>`).join("");
-  document.getElementById("profChips").querySelectorAll(".chip").forEach(c=> c.addEventListener("click",()=> runCommand(document.getElementById("profCmd").value, c.dataset.act)));
+const ACTIONS=[["lesson","Lesson plan","lesson"],["assign","Assignment","assignment"],["syllabus","Build syllabus","syllabus"],["assign","Grade","grade"],["research","Analyse card","analyse"],["search","Search","search"]];
+function renderActions(){
+  const extra={search:'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>'};
+  const host=document.getElementById("profChips"); host.className="actionbar";
+  host.innerHTML=ACTIONS.map(([ic,label,act])=>
+    `<button class="act-card" data-act="${act}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[ic]||extra[ic]||""}</svg>${label}</button>`).join("");
+  host.querySelectorAll(".act-card").forEach(b=> b.addEventListener("click",()=> doAction(b.dataset.act)));
+}
+function doAction(act){
+  const cmd=document.getElementById("profCmd").value;
+  if(act==="analyse"){ openAnalyse(); return; }
+  if(act==="search"){ openSearch("local", cmd.replace(/^(search|find|look up|for|about)\s*/gi,"").trim()); return; }
+  runCommand(cmd, act);
 }
 function setProfState(t){ document.getElementById("aiProfState").textContent=t; }
 function profResult(msg, cardName, cardId, extraHTML){
@@ -1313,12 +1394,12 @@ async function runCommand(text, forceAct){
   }
   setProfState("Working…");
   try{
-    if(act==="lesson"){ const {course,chapter}=chapterFrom(text); writeToCard("lesson-plans",genLessonPlan(course,chapter));
-      profResult("Lesson plan generated for “"+chapter+"” ("+course+"), with objectives, a case-method flow, in-class activities, homework and discussion questions.","Lesson Plans","lesson-plans"); }
-    else if(act==="assignment"){ const {course,chapter}=chapterFrom(text); writeToCard("assignments",genAssignment(course,chapter));
-      profResult("Assignment created on “"+chapter+"” ("+course+") — full instructions, a marking rubric, submission format and a model-answer outline.","Assignments","assignments"); }
+    if(act==="lesson"){ const {course,chapter}=chapterFrom(text); newRecord("lesson-plans"); writeToCard("lesson-plans",genLessonPlan(course,chapter)); if(activeId==="lesson-plans") renderPanel();
+      profResult("New lesson plan generated for “"+chapter+"” ("+course+") — objectives, a case-method flow, in-class activities, homework and discussion questions are filled.","Lesson Plans","lesson-plans"); }
+    else if(act==="assignment"){ const {course,chapter}=chapterFrom(text); newRecord("assignments"); writeToCard("assignments",genAssignment(course,chapter)); if(activeId==="assignments") renderPanel();
+      profResult("New assignment created on “"+chapter+"” ("+course+") — full instructions, a marking rubric, submission format and a model-answer outline.","Assignments","assignments"); }
     else if(act==="syllabus"){ const hit=pickCourse(text);
-      if(hit){ writeToCard("syllabus",applySyllabus(hit.u,hit.c)); profResult("Syllabus built from "+hit.u.uni+": "+hit.c.title+" — code, chapters, objectives and outcomes are filled.","Syllabus","syllabus"); }
+      if(hit){ newRecord("syllabus"); writeToCard("syllabus",applySyllabus(hit.u,hit.c)); if(activeId==="syllabus") renderPanel(); profResult("New syllabus built from "+hit.u.uni+": "+hit.c.title+" — code, chapters, objectives and outcomes are filled.","Syllabus","syllabus"); }
       else { setProfState("Awaiting orders"); openLibrary(); return; } }
     else if(act==="grade"){ const m=text.match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+)/); if(m){ LS.set(vKey("assignments","Score obtained"),m[1]); LS.set(vKey("assignments","Total marks"),m[2]); if(activeId==="assignments") renderPanel(); }
       const r=gradeSubmission(false); const tot=parseFloat(gv("assignments","Total marks"))||20, sc=parseFloat(gv("assignments","Score obtained"));
@@ -1337,6 +1418,43 @@ async function runCommand(text, forceAct){
   }finally{ setProfState("Awaiting orders"); }
 }
 function cardFromText(t){ const hit=SECTIONS.find(s=> t.includes(s.name.toLowerCase()) || t.includes(s.id.replace("-"," "))); return hit?hit.id:null; }
+
+/* ============ ANALYSE DRILL-DOWN ============ */
+function openAnalyse(){
+  document.getElementById("aiTitle").textContent="Analyse a record";
+  document.getElementById("aiSub").textContent="Pick a card, then a subject, then the record";
+  document.getElementById("aiRun").style.display="none"; document.getElementById("aiClear").style.display="none";
+  document.getElementById("aiBody").innerHTML=`
+    <span class="flbl">1 · Card type</span>
+    <select class="in" id="anSec">${SECTIONS.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>
+    <span class="flbl">2 · Subject</span>
+    <select class="in" id="anSubj"></select>
+    <span class="flbl">3 · Record</span>
+    <select class="in" id="anRec"></select>
+    <button class="btn btn-ai" id="anRun" style="width:100%;justify-content:center">Analyse this record</button>
+    <div id="anOut" style="margin-top:14px"></div>`;
+  const secSel=document.getElementById("anSec"), subjSel=document.getElementById("anSubj"), recSel=document.getElementById("anRec");
+  function fillRecords(){ const sid=secSel.value, sf=subjectField(sid), subj=subjSel.value;
+    const recs=loadRecs(sid).filter(r=>(recValFallback(sid,r.id,sf)||"(untitled)")===subj);
+    recSel.innerHTML=recs.map(r=>`<option value="${r.id}">${esc(recTitle(sid,r.id))}${r.id==="seed"?" · sample":""}</option>`).join(""); }
+  function fillSubjects(){ const sid=secSel.value, sf=subjectField(sid);
+    const subs=[...new Set(loadRecs(sid).map(r=>recValFallback(sid,r.id,sf)||"(untitled)"))];
+    subjSel.innerHTML=subs.map(x=>`<option>${esc(x)}</option>`).join(""); fillRecords(); }
+  secSel.addEventListener("change",fillSubjects); subjSel.addEventListener("change",fillRecords);
+  fillSubjects();
+  document.getElementById("anRun").addEventListener("click", async ()=>{
+    const sid=secSel.value, rid=recSel.value; if(!rid) return; setCurRec(sid,rid);
+    const out=document.getElementById("anOut"), prov=activeProvider(), key=providerKey(prov.id);
+    out.innerHTML=`<div class="ai-out">Analysing “${esc(recTitle(sid,rid))}”…</div>`;
+    let txt;
+    if(key){ try{ txt=await runProvider(prov,key,SYS,"Give a concise logical review of this record: completeness, clarity, correct legal terminology and accuracy, then 3–5 concrete improvements.\n\n"+buildContext(sid)); }
+      catch(e){ txt=templateAnalysis(sid,"logical")+"\n\n("+prov.name+" error: "+(e.message||e)+")"; } }
+    else txt=templateAnalysis(sid,"logical");
+    out.innerHTML=`<div class="ai-out">${esc(txt)}</div><button class="btn btn-brass" id="anOpen" style="margin-top:10px;width:100%;justify-content:center">Open this record</button>`;
+    document.getElementById("anOpen").addEventListener("click", ()=>{ closeDrawer("ai"); setActive(sid); });
+  });
+  openDrawer("ai");
+}
 
 /* ============ SETTINGS ============ */
 function openSettings(){
@@ -1377,10 +1495,10 @@ function runSearch(){
   const host=document.getElementById("searchResults");
   if(searchMode==="local"){
     if(!kw){ host.innerHTML=`<div class="hint">Type a keyword to search across every card — matches are highlighted and clicking one jumps to that card.</div>`; return; }
-    const res=[]; SECTIONS.forEach(sec=> sec.fields.forEach(f=>{ if(f.t==="upload") return; const v=String(getVal(f,sec.id)||""); if(v.toLowerCase().includes(kw.toLowerCase())) res.push({sec,f,v}); }));
+    const res=[]; SECTIONS.forEach(sec=> loadRecs(sec.id).forEach(rec=> sec.fields.forEach(f=>{ if(f.t==="upload") return; const v=String(recValFallback(sec.id,rec.id,f)||""); if(v.toLowerCase().includes(kw.toLowerCase())) res.push({sec,recId:rec.id,f,v}); })));
     if(!res.length){ host.innerHTML=`<div class="hint">No local matches for “${esc(kw)}”. Try the General &amp; sites tab.</div>`; return; }
-    host.innerHTML=res.slice(0,60).map((r,i)=>`<div class="sresult" data-id="${r.sec.id}"><div class="sr-card">${esc(r.sec.name)}</div><div class="sr-field">${esc(r.f.l)}</div><div class="sr-text">${highlight(r.v.slice(0,240),kw)}</div></div>`).join("");
-    host.querySelectorAll(".sresult").forEach(el=> el.addEventListener("click",()=>{ closeDrawer("search"); setActive(el.dataset.id); }));
+    host.innerHTML=res.slice(0,60).map(r=>`<div class="sresult" data-id="${r.sec.id}" data-rec="${r.recId}"><div class="sr-card">${esc(r.sec.name)} · ${esc(recTitle(r.sec.id,r.recId))}</div><div class="sr-field">${esc(r.f.l)}</div><div class="sr-text">${highlight(r.v.slice(0,240),kw)}</div></div>`).join("");
+    host.querySelectorAll(".sresult").forEach(el=> el.addEventListener("click",()=>{ closeDrawer("search"); setCurRec(el.dataset.id, el.dataset.rec); setActive(el.dataset.id); }));
   } else {
     const q=encodeURIComponent(kw);
     let html=`<button class="btn btn-ai" id="askAI" style="width:100%;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/></svg> Ask the AI Professor${kw?" about “"+esc(kw)+"”":""}</button><div id="askOut"></div>`;
@@ -1412,7 +1530,7 @@ function showReturn(){ document.getElementById("returnView").style.display="bloc
 function showOnboard(){ document.getElementById("onboardView").style.display="block"; document.getElementById("returnView").style.display="none";
   document.getElementById("onboardForm").classList.remove("show"); ["ob-name","ob-dept","ob-spec"].forEach(id=>{const e=document.getElementById(id); if(id==="ob-dept") e.value="Faculty of Law"; else e.value="";}); }
 function enterApp(){ document.getElementById("lobby").classList.add("hide"); document.getElementById("app").classList.add("show");
-  renderIdbar(); renderSidebar(); renderTabs(); renderPanel(); renderChips(); window.scrollTo(0,0); }
+  renderIdbar(); renderSidebar(); renderTabs(); renderPanel(); renderActions(); window.scrollTo(0,0); }
 function init(){
   prof=loadProf();
   if(prof) showReturn(); else showOnboard();
