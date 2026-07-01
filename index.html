@@ -896,7 +896,79 @@ const SECTIONS = [
       F("Profile photo","","upload"),
       F("CV (PDF)","","upload"),
       F("Short bio","Constitutional law scholar focused on fundamental rights and public-interest litigation in Pakistan.","textarea",null,true)
-    ]}, /* ---------- NEW LAW FACULTY ADVISORY & LOG CARDS ---------- */
+    ]},/* ---------- 50-FIELD MASTER STUDENT PROFILE CARD ---------- */
+  { id:"student-master-card", name:"Student Master Profile (50-Field Card)", icon:"students", group:"top",
+    desc:"Comprehensive academic dossier tracking personal identifiers, HEC standing, grading transcripts, library access, and moot court files.",
+    fields:[
+      /* --- Personal & Primary Identifiers (1-10) --- */
+      F("Full Name","Mansoor Ahmed Baloch"),
+      F("Enrollment Number","UOT-LLB-2023-084"),
+      F("University Roll Number","LLB-5th-24"),
+      F("CNIC Number","52203-1234567-9"),
+      F("Father / Guardian Name","Ghulam Mustafa Baloch"),
+      F("Date of Birth","2003-11-14","date"),
+      F("Gender Identity","Male","select",["Male","Female","Other"]),
+      F("Blood Group Typology","B+","select",["A+","A-","B+","B-","AB+","AB-","O+","O-"]),
+      F("Permanent Home Address","Main Bazar, Jinnah Road, Turbat, Balochistan","textarea",null,true),
+      F("Current Academic Housing Address","Law Faculty Student Hostel, Room 12, UoT Main Campus","textarea",null,true),
+
+      /* --- Emergency & Verification Contacts (11-14) --- */
+      F("Primary Mobile Number","+92 333 1234567"),
+      F("Institutional Email Account","mansoor.llb23@uot.edu.pk"),
+      F("Emergency Contact Kinsman Name","Barkat Ali Baloch"),
+      F("Emergency Contact Live Phone","+92 300 9876543"),
+
+      /* --- Academic Enrollment Metrics (15-19) --- */
+      F("Degree Program Track","LLB (5-Year)","select",["LLB (5-Year)","LLB (3-Year)","LLM"]),
+      F("Current Active Semester Placement","Semester 5","select",["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9","Semester 10"]),
+      F("Academic Matrix Batch Year","2023-2028"),
+      F("Assigned Classroom Cohort Section","Section A"),
+      F("Enrollment Status Designation","Regular","select",["Regular","Probationary","Suspended","Academic Freeze"]),
+
+      /* --- Academic Admissions & Base Standing (20-25) --- */
+      F("LAT (Law Admission Test) Score Evaluation","74","number"),
+      F("Matriculation / O-Level Final % Score","82","number"),
+      F("Intermediate / A-Level Final % Score","78","number"),
+      F("HEC Central Student Registration ID","HEC-LAW-99231"),
+      F("Current Cumulative CGPA Standing","3.42","number"),
+      F("Total Academic Credit Hours Vetted","72","number"),
+
+      /* --- Transcript Modules & Prerequisites (26-30) --- */
+      F("Deficient / Outstanding Prerequisite Modules","None Reported","textarea",null,true),
+      F("Grade Performance: Constitutional Law I","A","select",["A","B+","B","C","D","F"]),
+      F("Grade Performance: Islamic Jurisprudence","B+","select",["A","B+","B","C","D","F"]),
+      F("Grade Performance: Criminal Law Studies","A","select",["A","B+","B","C","D","F"]),
+      F("Grade Performance: General Law of Torts","B","select",["A","B+","B","C","D","F"]),
+
+      /* --- Practical Advocacy & Professional Training (31-35) --- */
+      F("Moot Court Core Team Role Assignment","Lead Oralist","select",["Lead Oralist","Co-Counsel","Research Analyst","Observer Evaluation"]),
+      F("Notable Moot Court Case Subject Matter Argued","Simulated appellate challenge surrounding Federal Legislative distribution patterns under Article 142.","textarea",null,true),
+      F("Active Legal Chambers Apprenticeship Firm","Baloch & Co. Legal Associates, Turbat Court Premises","text"),
+      F("Chambers Apprenticeship Duration Ledger","6 Weeks Training Block completed"),
+      F("Clinical Legal Aid Duty Hours Verification","24","number"),
+
+      /* --- Advanced Research Track & Scholarship (36-40) --- */
+      F("Senior Thesis / Research Working Title","Analyzing Constitutional Safeguards for Regional Disparities within Appellate Frameworks","textarea",null,true),
+      F("Research Manuscript Publication Standing","Under Academic Review","select",["Drafting Layout","Under Academic Review","Formally Published","Not Applicable"]),
+      F("Assigned Educational Endowment / Scholarship Support","Balochistan Education Endowment Fund (BEEF)","select",["None","BEEF Scholarship","HEC Need-Based Grant","Institutional Merit Waiver"]),
+      F("Active Semester Tuition Clearance Index","Fully Paid Ledger Status","select",["Fully Paid Ledger Status","Partial Installment Balance","Unpaid Backlog","Exempted Voucher Status"]),
+      F("Central Campus Library Account Barcode","LIB-UOT-9082"),
+
+      /* --- Campus Facilities & Resource Tracking (41-45) --- */
+      F("Active Library Book Volumes Lent Count","3","number"),
+      F("Circulating Library Volume Inventory Row 1","Pakistan Constitutional Case Law - A.K. Khan"),
+      F("Circulating Library Volume Inventory Row 2","Salmond Textbook Formulation on Jurisprudence"),
+      F("Outstanding Library Fines / Penalties Due","0","number"),
+      F("Disciplinary Log Compliance Record Summary","Clear Standing — No structural code violations flagged.","textarea",null,true),
+
+      /* --- Extracurricular & Ancillary Campus Profiles (46-50) --- */
+      F("Biometric Registry Attendance Mark %","91","number"),
+      F("Student Law Society Executive Board Post","General Secretary — Moot Court Executive Committee"),
+      F("Campus WiFi Network Device MAC Registration","7A:B4:2C:11:DE:9F"),
+      F("Target Provincial Bar Council Intimation Date Target","September 2028 Allocation Window"),
+      F("Assigned Law Faculty Research Guide / Mentor","Dr. Abdul Haq Baloch")
+    ]}
+  /* ---------- NEW LAW FACULTY ADVISORY & LOG CARDS ---------- */
   { id:"internships", name:"Internship & Chambers Placement", icon:"profile", group:"side",
     desc:"Track student legal training in chambers, law firms, courts, and legal aid clinics.",
     recordOnly: true, // System flag to remove WhatsApp broadcast buttons
